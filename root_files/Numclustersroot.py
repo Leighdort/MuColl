@@ -10,14 +10,14 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import uproot
 
-energies = [10, 50, 100, 150, 200]
+energies = [1, 2, 5, 10, 50, 100, 150, 200]
 
 for num in energies:
     num_clusters_array = []
     thetas = []
     theta2 = []
     theta3 = []
-    file = uproot.open(f"reco_outpute{num}.edm4hep.root")
+    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15/reco_pdg_11_pt_{num}_theta_15-15.root")
     events = file["events"]
     print(num)
     pandora_clusters = events["PandoraClusters"]
@@ -44,7 +44,7 @@ for num in energies:
     plt.ylabel("Count")
     plt.title(f"Clusters for {num} GeV Electrons")
     plt.tight_layout()
-    plt.savefig(f"clustersp_{num}GeV.pdf")
+    plt.savefig(f"clusterselectrons10x_{num}GeV.pdf")
     plt.close()
 
     plt.hist(thetas_array, bins=binst, edgecolor='black')
@@ -52,7 +52,7 @@ for num in energies:
     plt.ylabel("Count")
     plt.title(f"Thetas for {num} GeV Electrons")
     plt.tight_layout()
-    plt.savefig(f"centersp_{num}GeV.pdf")
+    plt.savefig(f"centerelectrons10x_{num}GeV.pdf")
     plt.close()
 
  

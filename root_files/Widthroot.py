@@ -5,23 +5,33 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import uproot
-
+#WARNING
+#SHOULD PRINT AS GOING TO REDUCE MEMORY AND TIME
 system2name = {
     679272617: "EcalBarrelCollectionRec",
     1573202488: "HcalBarrelCollectionRec",
     3383333369: "EcalEndcapCollectionRec",
-    2381985645: "HcalEndcapCollectionRec"
+    2381985645: "HcalEndcapCollectionRec",
+    3403901740: "Skip",
 }
-
-energies = [10, 50, 100, 150, 200]
+real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec","EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
+#energies = [1, 2, 5, 10, 50, 100, 150, 200]
+#energies = [1, 2, 5]
+#energies = [10, 50, 100]
+#energies = [150]
+energies = [200]
 
 sigma_mean_per_energy = []
 sigma_std_per_energy = []
 widths_per_energy = {}
 
+#First we will do the electrons
+#Now I will do the pions
+print("this is actually the pion one not the other one")
 for num in energies:
     print(f"\n=== Energy {num} GeV ===")
-    file = uproot.open(f"reco_outpute{num}.edm4hep.root")
+    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15/reco_pdg_211_pt_{num}_theta_15-15.root")
+ 
     events = file["events"]
 
     sigma_eta_list_energy = []
@@ -41,7 +51,7 @@ for num in energies:
     posz = {}
     energy_map = {}
 
-    for name in system2name.values():
+    for name in real_systems:
         prefix = f"{name}/{name}"
         posx[name]   = events[f"{prefix}.position.x"].array()
         posy[name]   = events[f"{prefix}.position.y"].array()
@@ -51,7 +61,7 @@ for num in energies:
     # Loop over events
     for i in range(events.num_entries):
 
-        if i % 100 == 0:
+        if i % 1000 == 0:
             print(f"Event {i}")
 
         hits_begin_arr = hits_begin_all[i]
@@ -78,6 +88,15 @@ for num in energies:
             # Vectorized system name lookups
             sysnames = np.vectorize(system2name.get)(sysIDs)
 
+            if 'None' in sysnames.astype(str):
+                print(f"Skipping cluster {j} in event {i} at energy {num} GeV due to unknown system ID")
+                continue
+            
+            mask = (sysnames != "Skip")
+            sysnames = sysnames[mask]
+            idxs = idxs[mask]
+            if len(sysnames) == 0:
+                continue
             # Build arrays of hit info in one pass
             xs = np.array([posx[s][i][idx] for s, idx in zip(sysnames, idxs)])
             ys = np.array([posy[s][i][idx] for s, idx in zip(sysnames, idxs)])
@@ -120,46 +139,13 @@ for num in energies:
         sigma_mean_per_energy.append(np.mean(sigma_eta_list_energy))
         sigma_std_per_energy.append(np.std(sigma_eta_list_energy))
         widths_per_energy[num] = widths_per_event
-
-# ---- PRINT RESULTS ----
-
-print("\n==== TOP 5 EVENTS PER ENERGY ====")
-for E in energies:
-    events_list = widths_per_energy[E]
-    top5 = sorted(events_list, key=lambda x: x[1], reverse=True)[:5]
-    print(f"\nEnergy {E} GeV — Top 5 widest events:")
-    for idx, width in top5:
-        print(f"  Event {idx:4d}   width = {width:.5f}")
-
-print("\n==== SUMMARY ====")
-for E in energies:
-    i = energies.index(E)
-    print(f"Energy {E} GeV:")
-    print(f"  Mean width: {sigma_mean_per_energy[i]:.4f}")
-    print(f"  Std width:  {sigma_std_per_energy[i]:.4f}")
-    print(f"  Num events: {len(widths_per_energy[E])}")
-
-# ---- PLOTTING ----
-
-plt.errorbar(
-    energies,
-    sigma_mean_per_energy,
-    yerr=sigma_std_per_energy,
-    fmt='o-', capsize=5
-)
-plt.xlabel("Beam Energy (GeV)")
-plt.ylabel(r"$\langle \sigma_\eta \rangle$")
-plt.title("Mean Cluster Width vs Energy")
-plt.grid(True)
-plt.tight_layout()
-plt.savefig("cluster_width_vs_energy.pdf")
-plt.close()
-
-for E in energies:
-    plt.hist([w for (_, w) in widths_per_energy[E]], bins=30, alpha=0.7)
-    plt.xlabel(r"$\sigma_\eta$")
-    plt.ylabel("Count")
-    plt.title(f"Cluster Widths at {E} GeV")
-    plt.tight_layout()
-    plt.savefig(f"width_hist_{E}.pdf")
-    plt.close()
+        plt.hist([w for (_, w) in widths_per_energy[num]], bins=30, alpha=0.7)
+        plt.xlabel(r"$\sigma_\eta$")
+        plt.ylabel("Count")
+        plt.title(f"Cluster Widths at {num} GeV")
+        plt.tight_layout()
+        plt.savefig(f"width_hist_{num}_pions10x.pdf")
+        plt.close()
+        avg_width = sigma_mean = sigma_mean_per_energy[-1]
+        avg_std = sigma_std_per_energy[-1]
+        print(f"Energy {num} GeV → Mean width = {avg_width:.5f}, Std = {avg_std:.5f}")

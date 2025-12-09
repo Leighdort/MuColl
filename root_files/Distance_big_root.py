@@ -16,10 +16,10 @@ system2name = {
 
 
 
-energies = [10, 50, 100, 150, 200]
+energies = [1, 2, 5, 10, 50, 100, 150, 200]
 
 for num in energies:
-    file = uproot.open(f"reco_outpute{num}.edm4hep.root")
+    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15/reco_pdg_11_pt_{num}_theta_15-15.root")
     events = file["events"]
     print(f"Processing {num} GeV")
 
@@ -88,6 +88,8 @@ for num in energies:
 
             #Doing the position array
             for sysid in np.unique(ids):
+                if sysid not in system2name:
+                    continue #I think skips the whole cluster 
                 sysname = system2name[sysid]
                 mask = (ids == sysid)
                 idxs = indices[mask]
@@ -127,7 +129,7 @@ for num in energies:
     plt.ylabel("Count")
     plt.title(f"Distance when more than one cluster for {num} GeV Electrons")
     plt.tight_layout()
-    plt.savefig(f"cluster_distance_{num}GeV.pdf")
+    plt.savefig(f"cluster_distance_electrons10x{num}GeV.pdf")
     plt.close()
     print(total_num_clusters)
     print(big_num_clusters)
