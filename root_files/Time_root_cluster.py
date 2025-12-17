@@ -10,7 +10,11 @@ import matplotlib.pyplot as plt
 import uproot
 #import ROOT
 
-energies = [1, 2, 5, 10, 50, 100, 150, 200]
+#energies = [1, 2, 5, 10, 50, 100, 150, 200]
+energies = [1, 2, 5, 10]
+#energies = [50,100]
+#energies = [150]
+#energies = [200]
 
 system2name = {
     679272617: "EcalBarrelCollectionRec",
@@ -19,15 +23,17 @@ system2name = {
     2381985645: "HcalEndcapCollectionRec",
     3403901740: "Skip",
 }
+'''
 # ======= ELECTRONS =======
 elec_ecal_end_mean = []
 elec_hcal_start_mean = []
 elec_ecal_end_std = []
 elec_hcal_start_std = []
 
+'''
 real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec",
                 "EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
-
+'''
 for num in energies:
     file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15/reco_pdg_11_pt_{num}_theta_15-15.root")
     events = file["events"]
@@ -111,6 +117,8 @@ for num in energies:
     std_ecal = np.std(event_ecal_max_times)
     mean_hcal = np.mean(event_hcal_min_times)
     std_hcal = np.std(event_hcal_min_times)
+    print(f"electrons {num}, meanecal= {mean_ecal}, stdecal = {std_ecal}")
+    print(f"electrons {num}, meanhcal = {mean_hcal}, stdhcal = {std_hcal}")
 
     if len(ecal_times) == 0 or len(hcal_times) == 0:
         print(f"Skipping hist for {num} GeV: No ECAL or HCAL times.")
@@ -127,11 +135,7 @@ for num in energies:
     plt.legend()
     plt.savefig(f"cluster_time_hits{num}e10x.pdf")
     plt.close()
-
-    elec_ecal_end_mean.append(mean_ecal)
-    elec_hcal_start_mean.append(mean_hcal)
-    elec_ecal_end_std.append(std_ecal)
-    elec_hcal_start_std.append(std_hcal)
+'''
 
 
 # ======= PIONS =======
@@ -223,7 +227,7 @@ for num in energies:
     std_ecal = np.std(event_ecal_max_times)
     mean_hcal = np.mean(event_hcal_min_times)
     std_hcal = np.std(event_hcal_min_times)
-
+    print(f"pion {num}, mean_ecal = {mean_ecal}, std_ecal = {std_ecal}, mean_hcal = {mean_hcal}, std_hcal = {std_hcal}")
     if len(ecal_times) == 0 or len(hcal_times) == 0:
         print(f"Skipping hist for {num} GeV: No ECAL or HCAL times.")
         continue
@@ -240,14 +244,9 @@ for num in energies:
     plt.savefig(f"cluster_time_hits{num}p10x.pdf")
     plt.close()
 
-    pion_ecal_end_mean.append(mean_ecal)
-    pion_hcal_start_mean.append(mean_hcal)
-    pion_ecal_end_std.append(std_ecal)
-    pion_hcal_start_std.append(std_hcal)
 
 
-
-
+'''
 #Now we are going to graph everything together
 #This might not show everything
 plt.errorbar(energies, elec_ecal_end_mean, yerr=elec_ecal_end_std, fmt='o', capsize=4, label="Electron Average End of Ecal")
@@ -262,3 +261,4 @@ plt.legend()
 plt.tight_layout()
 plt.savefig("summary_cluster_time.pdf")
 plt.close()
+'''

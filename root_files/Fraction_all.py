@@ -1,3 +1,4 @@
+#We are now going to do fraction w/ all of the clusters
 #Comparing energy to total energy
 import numpy as np
 import matplotlib
@@ -6,13 +7,13 @@ import matplotlib.pyplot as plt
 import uproot
 
 choices = [1, 2, 5, 10, 50, 100, 150, 200]
-#First I will see the ratio of particle w/ status 0, its energy to leading cluster energy
 electron_mean = []
 electron_low = []
 electron_high = []
 pion_mean = []
 pion_low = []
 pion_high = []
+
 for num in choices:
     file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15/reco_pdg_11_pt_{num}_theta_15-15.root")
     events = file["events"]
@@ -37,21 +38,21 @@ for num in choices:
         if (len(index_particle) != 1):
             print("meow")
         if len(energy) == 0:
-            print(f"dog pion | {num} GeV | event {i} | reason: no clusters")
+            #print(f"dog pion | {num} GeV | event {i} | reason: no clusters")
             continue
         # Skip if we don't have exactly one status==1 particle
         if len(index_particle) != 1:
-            print(f"cat pion | {num} GeV | event {i} | reason: found {len(index_particle)} status==1 particles")
+            #print(f"cat pion | {num} GeV | event {i} | reason: found {len(index_particle)} status==1 particles")
             continue
         # Skip if any momentum or mass array is empty
         if len(mass) == 0 or len(momentum_x) == 0 or len(momentum_y) == 0 or len(momentum_z) == 0:
-            print(f"mouse pion | {num} GeV | event {i} | reason: missing MC momentum/mass")
+            #print(f"mouse pion | {num} GeV | event {i} | reason: missing MC momentum/mass")
             continue
         mx = momentum_x[index_particle]
         my = momentum_y[index_particle]
         mz = momentum_z[index_particle]
         m = mass[index_particle]
-        cluster_energy = np.max(energy)
+        cluster_energy = np.sum(energy)
         momentum = np.sqrt(mx**2 + my**2 + mz**2)
         mc_energy = np.sqrt(m*m + momentum*momentum)
         if cluster_energy is None or mc_energy is None:
@@ -62,26 +63,28 @@ for num in choices:
         fraction = cluster_energy / mc_energy
         fraction_for_this_energy.append(fraction)
     fraction = np.array(fraction_for_this_energy)
-    electron_mean.append(np.median(fraction))
-    median = np.median(fraction)
+    average = np.median(fraction)
+    stdev = np.std(fraction)
+    electron_mean.append(average)
     q16, q84 = np.percentile(fraction, [16,84])
-    electron_low.append(median - q16)
-    electron_high.append(q84 - median)
+    electron_low.append(average-q16)
+    electron_high.append(q84-average)
     bins = np.linspace(np.min(fraction), np.max(fraction), 30)
     plt.hist(fraction, bins=bins, edgecolor='black')
-    plt.xlabel("Ratio of Leading Cluster Energy to MC Energy")
+    plt.xlabel("Ratio of all Clusters to MC Energy")
     plt.ylabel("Count")
-    plt.axvline(median,
+    plt.title(f"Ratio for {num} energy electrons")
+    plt.axvline(average,
         color='red',
         linestyle='--',
         linewidth=2,
-        label=f"Median = {median:.2f}")
-    plt.title(f"Ratio for {num} energy Electrons")
-    plt.tight_layout()
+        label=f"Median = {average:.2f}")
     plt.legend()
-    plt.savefig(f"ratio_electrons{num}GeV.pdf")
+    plt.tight_layout()
+    plt.savefig(f"all_ratio_electrons{num}GeV.pdf")
     plt.close()
 
+#Now we do pions
 for num in choices:
     file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15/reco_pdg_211_pt_{num}_theta_15-15.root")
     events = file["events"]
@@ -106,21 +109,21 @@ for num in choices:
         if (len(index_particle) != 1):
             print("meow")
         if len(energy) == 0:
-            print(f"dog pion | {num} GeV | event {i} | reason: no clusters")
+            #print(f"dog pion | {num} GeV | event {i} | reason: no clusters")
             continue
         # Skip if we don't have exactly one status==1 particle
         if len(index_particle) != 1:
-            print(f"cat pion | {num} GeV | event {i} | reason: found {len(index_particle)} status==1 particles")
+            #print(f"cat pion | {num} GeV | event {i} | reason: found {len(index_particle)} status==1 particles")
             continue
         # Skip if any momentum or mass array is empty
         if len(mass) == 0 or len(momentum_x) == 0 or len(momentum_y) == 0 or len(momentum_z) == 0:
-            print(f"mouse pion | {num} GeV | event {i} | reason: missing MC momentum/mass")
+            #print(f"mouse pion | {num} GeV | event {i} | reason: missing MC momentum/mass")
             continue
         mx = momentum_x[index_particle]
         my = momentum_y[index_particle]
         mz = momentum_z[index_particle]
         m = mass[index_particle]
-        cluster_energy = np.max(energy)
+        cluster_energy = np.sum(energy)
         momentum = np.sqrt(mx**2 + my**2 + mz**2)
         mc_energy = np.sqrt(m*m + momentum*momentum)
         if cluster_energy is None or mc_energy is None:
@@ -131,40 +134,34 @@ for num in choices:
         fraction = cluster_energy / mc_energy
         fraction_for_this_energy.append(fraction)
     fraction = np.array(fraction_for_this_energy)
-    pion_mean.append(np.median(fraction))
-    median = np.median(fraction)
+    average = np.median(fraction)
     q16, q84 = np.percentile(fraction, [16, 84])
-    pion_low.append(median - q16)
-    pion_high.append(q84 - median)
+    pion_low.append(average-q16)
+    pion_high.append(q84-average)
+    pion_mean.append(average)
     bins = np.linspace(np.min(fraction), np.max(fraction), 30)
     plt.hist(fraction, bins=bins, edgecolor='black')
-    plt.axvline(median,
+    plt.xlabel("Ratio of all Clusters to MC Energy")
+    plt.ylabel("Count")
+    plt.title(f"Ratio for {num} energy Pions")
+    plt.axvline(average,
         color='red',
         linestyle='--',
         linewidth=2,
-        label=f"Median = {median:.2f}")
+        label=f"Median = {average:.2f}")
     plt.legend()
-    plt.xlabel("Ratio of Leading Cluster Energy to MC Energy")
-    plt.ylabel("Count")
-    plt.title(f"Ratio for {num} energy Pions")
     plt.tight_layout()
-    plt.savefig(f"ratio_pions{num}GeV.pdf")
+    plt.savefig(f"all_ratio_pions{num}GeV.pdf")
     plt.close()
 
-plt.errorbar(choices, electron_mean, yerr=[electron_low, electron_high], alpha=0.6, fmt='o', capsize=4, label="Electrons")
-plt.errorbar(choices, pion_mean, yerr=[pion_low, pion_high], alpha = 0.6, fmt='s', capsize=4, label="Pions")
+
+plt.errorbar(choices, electron_mean, yerr=[electron_low, electron_high], fmt='o', alpha=0.6, capsize=4, label="Electrons")
+plt.errorbar(choices, pion_mean, yerr=[pion_low, pion_high], fmt='s', capsize=4, alpha=0.6, label="Pions")
 plt.xlabel("Beam Energy")
-plt.ylabel("Median Leading Cluster/MC")
-plt.title("Leading Cluster Energy vs MC Energy")
+plt.ylabel("Cluster/MC Particle")
+plt.title("Cluster/MC Particle per energy")
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
-plt.savefig("summary_fraction_lead.pdf")
+plt.savefig("summary_fraction_all.pdf")
 plt.close()
-
-
-
-
-
-
-

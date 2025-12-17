@@ -13,10 +13,9 @@ system2name = {
     2381985645: "HcalEndcapCollectionRec"
 }
 
-energies = [10, 50, 100, 150, 200]
+energies = [1, 2, 5, 10, 50, 100, 150, 200]
 
 cluster_centers_per_energy = {}
-
 for num in energies:
 
     print(f"\nProcessing {num} GeV...")
