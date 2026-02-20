@@ -11,9 +11,14 @@ system2name = {
     679272617: "EcalBarrelCollectionRec",
     1573202488: "HcalBarrelCollectionRec",
     3383333369: "EcalEndcapCollectionRec",
-    2381985645: "HcalEndcapCollectionRec"
+    2381985645: "HcalEndcapCollectionRec",
+    3403901740: "Skip",
 }
-
+real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec","EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
+#First fix to include the hits to skip
+#Then change it to R and theta 
+#Then do this and positrons & make summary
+#Then do with just everything + leading cluster
 
 
 energies = [1, 2, 5, 10, 50, 100, 150, 200]
@@ -41,7 +46,7 @@ for num in energies:
     # Preload calorimeter arrays
     pos = {}
     ener = {}
-    for name in system2name.values():
+    for name in real_systems:
         prefix = f"{name}/{name}"
         pos[name] = {
             "x": events[f"{prefix}.position.x"].array(),
@@ -85,13 +90,16 @@ for num in energies:
             ys = np.empty(len(indices))
             zs = np.empty(len(indices))
             ws = np.empty(len(indices))
-
+            #We're skipping the punch through 
+            valid_mask = np.array([system2name.get(sysid, None) != "Skip" for sysid in ids])
+            if not np.any(valid_mask):
+                continue  # skip cluster if all hits are "Skip"
             #Doing the position array
-            for sysid in np.unique(ids):
+            for sysid in np.unique(ids[valid_mask]):
                 if sysid not in system2name:
                     continue #I think skips the whole cluster 
                 sysname = system2name[sysid]
-                mask = (ids == sysid)
+                mask = (ids == sysid) & valid_mask
                 idxs = indices[mask]
                 xs[mask] = pos[sysname]["x"][i][idxs]
                 ys[mask] = pos[sysname]["y"][i][idxs]

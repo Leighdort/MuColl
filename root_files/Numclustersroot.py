@@ -14,22 +14,22 @@ import uproot
 #First we will get mean and stdev
 #And we will graph log scale
 #Then we will pick some events, deal
-energies = [1, 2, 5, 10, 50, 100, 150, 200]
-
+#energies = [1, 2, 5, 10, 50, 100, 150, 200]
+energies = [2, 50]
 #Now we resume what we need
-electron_mean = []
-electron_low = []
-electron_high = []
-pion_mean = []
-pion_low = []
-pion_high = []
+bib_mean = []
+bib_low = []
+bib_high = []
+nobib_mean = []
+nobib_low = []
+nobib_high = []
 
 for num in energies:
     num_clusters_array = []
     thetas = []
     theta2 = []
     theta3 = []
-    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15/reco_pdg_11_pt_{num}_theta_15-15.root")
+    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_bib.root")
     events = file["events"]
     print(num)
     pandora_clusters = events["PandoraClusters"]
@@ -51,12 +51,18 @@ for num in energies:
     thetas_array = np.array(thetas)
     binst = np.linspace(0, 360, 362)
     num_clusters_array = np.array(num_clusters_array)
-    electron_mean.append(np.median(num_clusters_array))
+    bib_mean.append(np.median(num_clusters_array))
     median_val = np.median(num_clusters_array)
     q16, q84 = np.percentile(num_clusters_array, [16, 84]) 
-    electron_low.append(median_val - q16)
-    electron_high.append(q84 - median_val)
-    bins = np.arange(0, num_clusters_array.max()+2)
+    bib_low.append(median_val - q16)
+    bib_high.append(q84 - median_val)
+    #bins = np.arange(0, num_clusters_array.max()+2)
+    bin_width = int(np.ceil((num_clusters_array.max() - num_clusters_array.min() + 1) / 60))
+    bins = np.arange(
+        num_clusters_array.min() - 0.5,
+        num_clusters_array.max() + bin_width + 0.5,
+        bin_width
+    )
     plt.hist(num_clusters_array, bins=bins, edgecolor='black')
     plt.yscale("log")
     plt.axvline(median_val,
@@ -67,9 +73,9 @@ for num in energies:
     plt.legend()
     plt.xlabel("Number of Clusters per event")
     plt.ylabel("Count")
-    plt.title(f"Clusters for {num} GeV Electrons")
+    plt.title(f"Clusters for {num} GeV Pion Bib")
     plt.tight_layout()
-    plt.savefig(f"clusterselectrons10x_{num}GeV.pdf")
+    plt.savefig(f"2clusterspion_{num}GeV_bib.pdf")
     plt.close()
     
     #plt.hist(thetas_array, bins=binst, edgecolor='black')
@@ -87,7 +93,7 @@ for num in energies:
     thetas = []
     theta2 = []
     theta3 = []
-    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15/reco_pdg_211_pt_{num}_theta_15-15.root")
+    file = file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_nobib.root")
     events = file["events"]
     print(num)
     pandora_clusters = events["PandoraClusters"]
@@ -109,12 +115,17 @@ for num in energies:
     thetas_array = np.array(thetas)
     binst = np.linspace(0, 360, 362)
     num_clusters_array = np.array(num_clusters_array)
-    pion_mean.append(np.median(num_clusters_array))
+    nobib_mean.append(np.median(num_clusters_array))
     median_val = np.median(num_clusters_array)
     q16, q84 = np.percentile(num_clusters_array, [16, 84]) 
-    pion_low.append(median_val - q16)
-    pion_high.append(q84 - median_val)
-    bins = np.arange(0, num_clusters_array.max()+2)
+    nobib_low.append(median_val - q16)
+    nobib_high.append(q84 - median_val)
+    bin_width = int(np.ceil((num_clusters_array.max() - num_clusters_array.min() + 1) / 60))
+    bins = np.arange(
+        num_clusters_array.min() - 0.5,
+        num_clusters_array.max() + bin_width + 0.5,
+        bin_width
+    )
     plt.hist(num_clusters_array, bins=bins, edgecolor='black')
     plt.yscale("log")
     plt.axvline(median_val,
@@ -125,20 +136,20 @@ for num in energies:
     plt.xlabel("Number of clusters per event")
     plt.ylabel("Count")
     plt.legend()
-    plt.title(f"Clusters for {num} GeV Pions")
+    plt.title(f"Clusters for {num} GeV Pions Nobib")
     plt.tight_layout()
-    plt.savefig(f"clusterspions10x_{num}GeV.pdf")
+    plt.savefig(f"2clusterspions_{num}GeV_nobib.pdf")
     plt.close()
 
-plt.errorbar(energies, pion_mean, yerr=[pion_low, pion_high], fmt='s', capsize=4, alpha=0.6, label="Pions")
-plt.errorbar(energies, electron_mean, yerr=[electron_low, electron_high], fmt='o', capsize=4, alpha=0.6, label="Electrons")
+plt.errorbar(energies, bib_mean, yerr=[bib_low, bib_high], fmt='s', capsize=4, alpha=0.6, label="Bib")
+plt.errorbar(energies, nobib_mean, yerr=[nobib_low, nobib_high], fmt='o', capsize=4, alpha=0.6, label="Nobib")
 plt.xlabel("Beam Energy")
 plt.ylabel("Median number of Clusters per Event")
 plt.title("Median cluster multiplicity vs energy")
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
-plt.savefig("summary_cluster_count.pdf")
+plt.savefig("summary_cluster_bib2.pdf")
 plt.close()
 
 

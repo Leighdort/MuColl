@@ -16,26 +16,26 @@ system2name = {
 }
 real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec","EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
 #energies = [1, 2, 5, 10, 50, 100, 150, 200]
-#energies = [1, 2, 5]
+#energies = [2, 10, 50]
+energies = [50]
 #energies = [10, 50, 100]
 #energies = [150]
-energies = [200]
+#energies = [200]
 
-sigma_mean_per_energy = []
+sigma_median_per_energy = []
 sigma_std_per_energy = []
-widths_per_energy = {}
 
 #First we will do the electrons
 #Now I will do the pions
-print("this is actually the pion one not the other one")
+print("this is next this is pions. This is bib")
 for num in energies:
     print(f"\n=== Energy {num} GeV ===")
-    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15/reco_pdg_211_pt_{num}_theta_15-15.root")
+    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib/reco_pdg_211_pt_{num}_theta_15-15_bib.root")
  
     events = file["events"]
 
     sigma_eta_list_energy = []
-    widths_per_event = []
+
 
     pandora_clusters_hits = events["_PandoraClusters_hits"]
     hit_index_all    = pandora_clusters_hits["_PandoraClusters_hits.index"].array()
@@ -89,7 +89,7 @@ for num in energies:
             sysnames = np.vectorize(system2name.get)(sysIDs)
 
             if 'None' in sysnames.astype(str):
-                print(f"Skipping cluster {j} in event {i} at energy {num} GeV due to unknown system ID")
+                #print(f"Skipping cluster {j} in event {i} at energy {num} GeV due to unknown system ID")
                 continue
             
             mask = (sysnames != "Skip")
@@ -125,27 +125,34 @@ for num in energies:
 
             sigma_eta = np.arctan(r_rms / mag_c) * np.cosh(eta_c)
             sigma_eta_percluster.append(sigma_eta)
-
         # End cluster loop
 
         if sigma_eta_percluster:
-            mean_width = np.mean(sigma_eta_percluster)
+            mean_width = np.median(sigma_eta_percluster) #Ok taking the median width 
             sigma_eta_list_energy.append(mean_width)
-            widths_per_event.append((i, mean_width))
 
     # End event loop
 
     if sigma_eta_list_energy:
-        sigma_mean_per_energy.append(np.mean(sigma_eta_list_energy))
-        sigma_std_per_energy.append(np.std(sigma_eta_list_energy))
-        widths_per_energy[num] = widths_per_event
-        plt.hist([w for (_, w) in widths_per_energy[num]], bins=30, alpha=0.7)
+        sigma_median_per_energy.append(np.median(sigma_eta_list_energy))
+        #sigma_std_per_energy.append(np.std(sigma_eta_list_energy))
+        #sigma_eta_list_energy holds energy
+        median = np.median(sigma_eta_list_energy)
+        q16, q84 = np.percentile(sigma_eta_list_energy, [16, 84])
+        low = median - q16
+        high = q84 - median
+        bins = np.linspace(np.min(sigma_eta_list_energy), np.max(sigma_eta_list_energy), 30)
+        plt.hist(sigma_eta_list_energy, bins=bins, alpha = 0.7)
+        plt.axvline(median,
+            color = 'red',
+            linestyle='--',
+            linewidth=2,
+            label=f"Median = {median:.2f}")
+        plt.legend()
         plt.xlabel(r"$\sigma_\eta$")
         plt.ylabel("Count")
-        plt.title(f"Cluster Widths at {num} GeV")
+        plt.title(f"Cluster Widths at {num} GeV Pion with Bib")
         plt.tight_layout()
-        plt.savefig(f"width_hist_{num}_pions10x.pdf")
+        plt.savefig(f"width_hist_{num}_pions10_bib.pdf")
         plt.close()
-        avg_width = sigma_mean = sigma_mean_per_energy[-1]
-        avg_std = sigma_std_per_energy[-1]
-        print(f"Energy {num} GeV → Mean width = {avg_width:.5f}, Std = {avg_std:.5f}")
+        print(f"Energy {num} GeV → Median width, Bib = {median:.5f}, Upper = {high:.5f}, Lower = {low:.5f}")

@@ -1,4 +1,3 @@
-
 import uproot
 import numpy as np
 import pandas as pd
@@ -10,8 +9,17 @@ system2name = {
     3383333369: "EcalEndcapCollectionRec",
     2381985645: "HcalEndcapCollectionRec"
 }
+def get_layer(cellID: int) -> int:
+    # Bit sizes from DD4hep BitFieldCoder (LOW → HIGH bits)
+    SYSTEM_BITS = 5
+    SIDE_BITS = 2
+    MODULE_BITS = 8
+    STAVE_BITS = 4
+    LAYER_BITS = 9
 
+    LAYER_SHIFT = SYSTEM_BITS + SIDE_BITS + MODULE_BITS + STAVE_BITS
 
+    return (cellID >> LAYER_SHIFT) & ((1 << LAYER_BITS) - 1)
 #electron_energies = [1, 2]
 
 #electron_events = {
@@ -77,18 +85,19 @@ def process_event(events, i, system2name):
     collection_ID  = collectionID_all[i]
 
     # Load hit positions
-    posx, posy, posz, energy = {}, {}, {}, {}
+    posx, posy, posz, energy, cellID = {}, {}, {}, {}, {}
     for name in system2name.values():
         prefix = f"{name}/{name}"
         posx[name] = events[f"{prefix}.position.x"].array()
         posy[name] = events[f"{prefix}.position.y"].array()
         posz[name] = events[f"{prefix}.position.z"].array()
         energy[name] = events[f"{prefix}.energy"].array()
+        cellID[name] = events[f"{prefix}.cellID"].array()
 
     clusters_list = []
 
     for j in range(len(hits_begin_arr)):
-        xs, ys, zs, ws = [], [], [], []
+        xs, ys, zs, ws, layers = [], [], [], [], []
 
         for idx, coll_id in zip(
             hit_index[hits_begin_arr[j]:hits_end_arr[j]],
@@ -102,13 +111,15 @@ def process_event(events, i, system2name):
             ys.append(posy[sys][i][idx])
             zs.append(posz[sys][i][idx])
             ws.append(energy[sys][i][idx])
+            layers.append(get_layer(int(cellID[sys][i][idx])))
 
         if xs:
             clusters_list.append({
                 "x": np.array(xs),
                 "y": np.array(ys),
                 "z": np.array(zs),
-                "energy": np.array(ws)
+                "energy": np.array(ws),
+                "layer": np.array(layers)
             })
     xs, ys, zs, ws = [], [], [], []
     for idx, coll_id in zip (hit_index, collection_ID):
@@ -127,13 +138,14 @@ def process_event(events, i, system2name):
     })
 
     # Flatten clusters into DataFrame
-    all_x, all_y, all_z, cluster_id, all_e = [], [], [], [], []
+    all_x, all_y, all_z, cluster_id, all_e, all_layer = [], [], [], [], [], []
     for cid, c in enumerate(clusters_list):
         n = len(c["x"])
         all_x.extend(c["x"])
         all_y.extend(c["y"])
         all_z.extend(c["z"])
         all_e.extend(c["energy"])
+        all_layer.extend(c["layer"])
         cluster_id.extend([cid] * n)
 
     df = pd.DataFrame({
@@ -141,7 +153,8 @@ def process_event(events, i, system2name):
         "y": all_y,
         "z": all_z,
         "cluster": cluster_id,
-        "energy": all_e
+        "energy": all_e,
+        "layer": all_layer
     })
 #x from 100 -500
 # y from  400 900
@@ -189,7 +202,7 @@ file = uproot.open("/users/rldohert/data/mucoll/rldohert/pdg_211_pt_5_theta_15-1
 
 
 
-print("Processing Bib 50 GeV")
+print("Processing Bib w/ Layer 50 GeV")
 #file = uproot.open("/users/rldohert/data/mucoll/rldohert/chunk_0/reco_output.edm4hep.root")
 #file = uproot.open("/users/rldohert/data/mucoll/rldohert/chunk0_bib_211_5/reco_output.edm4hep.root")
 file = uproot.open("/users/rldohert/data/mucoll/rldohert/new_sim_pt_50_0/reco_output_p50_211_bib0.edm4hep.root")
@@ -199,9 +212,9 @@ all_events_data = []
 for i in pion_5_bib:
     event_data = process_event(events, i, system2name)
     event_data["energy_event"] = 5
-    event_data["event_tag"] = "no bib 2/8/26 "
+    event_data["event_tag"] = "bib 2/11/26 "
     all_events_data.append(event_data)
-with open("/users/rldohert/data/mucoll/rldohert/pion_energy_50_211_bib_2_9.pkl", "wb") as f:
+with open("/users/rldohert/data/mucoll/rldohert/pion_energy_50_211_bib_2_11.pkl", "wb") as f:
     pickle.dump(all_events_data, f)
     print(f"Saved pion_energy_50_nobib.pkl")
 

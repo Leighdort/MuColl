@@ -1,5 +1,7 @@
 #Getting clusters/points
 
+#I believe this one fials
+###@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@#@@@@#@#@
 import uproot
 import numpy as np
 import pickle
@@ -9,8 +11,8 @@ import pickle
 #number tracks, xyz tracks, maybe the mc particles
 #Ok I will have to choose 
 #Events
-electron_1=[0,50,269,2678]
-electron_2=[0,100,2663,6595]
+#electron_1=[0,50,269,2678]
+#electron_2=[0,100,2663,6595]
 #electron_5=[0,32,9400,9664,9748]
 #electron_10=[0,3071,4000,4536]
 #electron_50=[0,1527,2211,3116,9948]
@@ -28,8 +30,8 @@ electrons = {
     #150: electron_150,
     #200: electron_200
 }
-pion_1=[0,64,2525,3506,4392,9950]
-pion_2=[1,286,2075,6504,9930]
+#pion_1=[0,64,2525,3506,4392,9950]
+#pion_2=[1,286,2075,6504,9930]
 #pion_5=[0,3611,9900]
 #pion_10=[0,1417,7290,9900]
 #lister = list(range(5900, 6001))
@@ -38,6 +40,7 @@ pion_2=[1,286,2075,6504,9930]
 #pion_100=[1,446,8485]
 #pion_150=[0,1,771,5531,5785,6288,9114]
 #pion_200=[0,2,1124,1434,2029]
+pion_5_bib=[0,1,2,3,4,5,6,7,8,9]
 pions = {
     1: pion_1,
     2: pion_2,
@@ -53,12 +56,15 @@ pions = {
 
 
 #choices = [1,2,5,10,50,100,150,200]'
-choices = [1,2]
+#choices = [1,2]
+choices = [0]
 real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec","EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
 all_data = {}
 for num in choices:
-    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15/reco_pdg_11_pt_{num}_theta_15-15.root")
-    list_to_look = electrons[num]
+    #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15/reco_pdg_11_pt_{num}_theta_15-15.root")
+    file = uproot.open(f" /users/rldohert/data/mucoll/rldohert/chunk_0/reco_output.edm4hep.root")
+    #list_to_look = electrons[num]
+    list_to_look = pion_5_bib
     events = file["events"]
     event_indices = list_to_look
     clusters = events["PandoraClusters"]
@@ -122,10 +128,12 @@ for num in choices:
         #"deduped_tracks": deduped_tracks_data,
         "pandora_clusters": pandora_cluster_data
     }
-with open("/users/rldohert/data/mucoll/rldohert/electron_subset.pkl", "wb") as f:
+with open("/users/rldohert/data/mucoll/rldohert/pion_bib_subset.pkl", "wb") as f:
     pickle.dump(all_data, f)
 
-
+#Next is pions 
+#Warning all tracks 
+"""
 all_data={}
 for num in choices:
     file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15/reco_pdg_211_pt_{num}_theta_15-15.root")
@@ -197,8 +205,7 @@ for num in choices:
     }
 with open("/users/rldohert/data/mucoll/rldohert/pions_subset.pkl", "wb") as f:
     pickle.dump(all_data, f)
-#Warning all tracks 
-
+"""
 '''
 #!/bin/bash
 #SBATCH -J distance

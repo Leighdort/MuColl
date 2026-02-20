@@ -23,17 +23,20 @@ system2name = {
     2381985645: "HcalEndcapCollectionRec",
     3403901740: "Skip",
 }
+
+real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec",
+                "EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
+
 '''
 # ======= ELECTRONS =======
 elec_ecal_end_mean = []
 elec_hcal_start_mean = []
-elec_ecal_end_std = []
-elec_hcal_start_std = []
+elec_ecal_end_top = []
+elec_ecal_end_bottom = []
+elec_hcal_start_top = []
+ecal_hcal_start_bottom = []
 
-'''
-real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec",
-                "EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
-'''
+
 for num in energies:
     file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15/reco_pdg_11_pt_{num}_theta_15-15.root")
     events = file["events"]
@@ -113,12 +116,16 @@ for num in energies:
     ecal_times = ecal_times[ecal_times > 0]
     hcal_times = hcal_times[hcal_times > 0]
 
-    mean_ecal = np.mean(event_ecal_max_times)
-    std_ecal = np.std(event_ecal_max_times)
-    mean_hcal = np.mean(event_hcal_min_times)
-    std_hcal = np.std(event_hcal_min_times)
-    print(f"electrons {num}, meanecal= {mean_ecal}, stdecal = {std_ecal}")
-    print(f"electrons {num}, meanhcal = {mean_hcal}, stdhcal = {std_hcal}")
+    mean_ecal = np.median(event_ecal_max_times)
+    q16, q84 = np.percentile(event_ecal_max_times, [16, 84])
+    top_ecal = q84 - mean_ecal
+    bottom_ecal = mean_ecal-q16
+    mean_hcal = np.median(event_hcal_min_times)
+    q16, q84 = np.percentile(event_hcal_min_times, [16, 84])
+    top_hcal = q84 - mean_hcal
+    bottom_hcal = mean_hcal - q16
+    print(f"electrons {num}, meanecal= {mean_ecal}, ecal_top = {top_ecal}, ecal_bottom = {bottom_ecal}")
+    print(f"electrons {num}, meanhcal = {mean_hcal}, hcal_top = {top_hcal}, hcal_bottom = {bottom_hcal}")
 
     if len(ecal_times) == 0 or len(hcal_times) == 0:
         print(f"Skipping hist for {num} GeV: No ECAL or HCAL times.")
@@ -223,11 +230,17 @@ for num in energies:
     ecal_times = ecal_times[ecal_times > 0]
     hcal_times = hcal_times[hcal_times > 0]
 
-    mean_ecal = np.mean(event_ecal_max_times)
-    std_ecal = np.std(event_ecal_max_times)
-    mean_hcal = np.mean(event_hcal_min_times)
-    std_hcal = np.std(event_hcal_min_times)
-    print(f"pion {num}, mean_ecal = {mean_ecal}, std_ecal = {std_ecal}, mean_hcal = {mean_hcal}, std_hcal = {std_hcal}")
+    mean_ecal = np.median(event_ecal_max_times)
+    q16, q84 = np.percentile(event_ecal_max_times, [16, 84])
+    top_ecal = q84 - mean_ecal
+    bottom_ecal = mean_ecal-q16
+    mean_hcal = np.median(event_hcal_min_times)
+    q16, q84 = np.percentile(event_hcal_min_times, [16, 84])
+    top_hcal = q84 - mean_hcal
+    bottom_hcal = mean_hcal - q16
+    print(f"pions {num}, meanecal= {mean_ecal}, ecal_top = {top_ecal}, ecal_bottom = {bottom_ecal}")
+    print(f"pions {num}, meanhcal = {mean_hcal}, hcal_top = {top_hcal}, hcal_bottom = {bottom_hcal}")
+
     if len(ecal_times) == 0 or len(hcal_times) == 0:
         print(f"Skipping hist for {num} GeV: No ECAL or HCAL times.")
         continue
