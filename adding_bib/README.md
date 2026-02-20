@@ -1,6 +1,6 @@
 This folder includes scripts for adding bib using this image docker://ghcr.io/muoncollidersoft/mucoll-sim-ubuntu24:main. For this to run nicely, it will use the cached image.
 
-I currently run 10,000 events full from simulation to reconstruction in sets of 10 which takes ~ 2 minutes per batch job. I use submit_scan.py and full_chain.sh as you might be used to. 
+I currently run 10,000 events full from simulation to reconstruction in sets of 10 which takes ~ 2-10 minutes per batch job. I use submit_scan.py and full_chain.sh as you might be used to. 
 In all of my files I hard code my paths in, so every path should be checked/changed... 
 I can elaborate here if needed.
 
