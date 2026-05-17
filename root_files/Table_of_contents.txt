@@ -12,10 +12,69 @@ Pion_chosen.py
 -> To feed certain event numbers and output fraction of the mc particle, cluster index, distance from mc particle, used to approach outliers
 Weird_counts.py
 -> Gives you punchthrough rate
+Weird_counts_energy.py
+-> Gives you enery out of total energy for punchthrough rate
 Time_root.py
 -> Gives you the times of the hits and or clusters **unsure
+Time_root_cluster.py
+-> Graphing max time in the ecal and min time in the hcal 
 Fraction_pfos.py
 -> takes total energy of the pfo / mc particle energy. This is pfo response
+Printing_files.py
+-> Pretty not useful, just summery making when you have to combine multiple outputs. 
+Numclustersroot.py
+-> Spread of number of clusters in an event
+Stats.py
+-> Tells you events that make 1 cluster cut, and then distance cut *
+Cluster_threshold.py
+-> Stacked like 1 cluster, 2 cluster, 3 cluster to max cluster to show that 1 cluster is a good amount
+
+"Distances"
+Distance_big_root.py
+-> Distance between cluster centers, aka average distance in an event from cluster 0 to 1 1 to 2 0 to 2. You should just choose distance to leading cluster in the future
+Distance_big_root_spherical.py
+-> Average spherical distance between all cluster centers
+Check_mc.py
+-> Checking different types of distance before we settled on the chosen distance metric, like between cluster center and what aspect of mc particle
+Mc_cluster.py
+-> 
+
+
+"Response"
+Calibration3.py
+->Comparing baseline, 4 cal, 4 cal corrected for 15 and 85 on one graph 
+Fraction_ratio2.py **
+->Gives you the response gaussian separated into two peaks based on hits 
+Energy_check.py **
+-> Checking response and calibrated via energy in ecal/hcal and also using energy based gaussian separation not hit based
+Mc_fraction_nobib.py
+-> Response w/ bounds (bib and nobib)
+Response_scatter.py
+->I believe gives the same as below, the scatter plot but this time with calibrated data.
+Fraction_v_ratio.py
+-> Scatter plot of response vs fraction of hits in certain parts of the detector 
+Mc_fraction_trial.py
+->Comparing baseline with the shifted/corrected calibration
+Manual_calibration.py
+-> I thinked a failed calibration attempt, I don't think I ever used it ?
+Location_hits.py
+-> Not sure what this is. It looks like it works I don't remember ever using it
+Pfos_vs_response.py
+-> Checking to see the pfo distribution above and below ratio of hits in the Ecal. Conclusion was, at least with tracking turned off, this is no difference 
+Comparing.py
+-> Making summary graphs for response and resolution with bib and nobib 
+
+"Resolution"
+Nobib_resolution.py
+-> Looking at resolution for nobib
+Bib_resolution.py
+-> Looking at resolution for events with bibs within bounds, likely just for neutrons??
+
+"Software"
+Energy_ratio.py
+-> Checking difference between ecal/hcal energy added together vs cluster energy with software on and off
+Hit_clusresponse.py
+-> Difference between cluster adn total hit energy
 
 
 Files
