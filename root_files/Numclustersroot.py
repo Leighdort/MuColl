@@ -15,7 +15,7 @@ import uproot
 #And we will graph log scale
 #Then we will pick some events, deal
 #energies = [1, 2, 5, 10, 50, 100, 150, 200]
-energies = [2, 50]
+energies = [50]
 #Now we resume what we need
 bib_mean = []
 bib_low = []
@@ -29,7 +29,7 @@ for num in energies:
     thetas = []
     theta2 = []
     theta3 = []
-    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_bib.root")
+    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_143-143_bib2/reco_pdg_211_pt_{num}_theta_143-143_nobib.root")
     events = file["events"]
     print(num)
     pandora_clusters = events["PandoraClusters"]
@@ -73,9 +73,9 @@ for num in energies:
     plt.legend()
     plt.xlabel("Number of Clusters per event")
     plt.ylabel("Count")
-    plt.title(f"Clusters for {num} GeV Pion Bib")
+    plt.title(f"Clusters for {num} GeV Pions Nobib")
     plt.tight_layout()
-    plt.savefig(f"2clusterspion_{num}GeV_bib.pdf")
+    plt.savefig(f"3clusterspion__143_{num}GeV_bib.pdf")
     plt.close()
     
     #plt.hist(thetas_array, bins=binst, edgecolor='black')
@@ -87,13 +87,13 @@ for num in energies:
     #plt.close()
     
 
- 
+'''
 for num in energies:
     num_clusters_array = []
     thetas = []
     theta2 = []
     theta3 = []
-    file = file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_nobib.root")
+    file = file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15_bib2/reco_pdg_11_pt_{num}_theta_15-15_nobib.root")
     events = file["events"]
     print(num)
     pandora_clusters = events["PandoraClusters"]
@@ -136,24 +136,24 @@ for num in energies:
     plt.xlabel("Number of clusters per event")
     plt.ylabel("Count")
     plt.legend()
-    plt.title(f"Clusters for {num} GeV Pions Nobib")
+    plt.title(f"Clusters for {num} GeV Electron Nobib")
     plt.tight_layout()
-    plt.savefig(f"2clusterspions_{num}GeV_nobib.pdf")
+    plt.savefig(f"2clusterselec_{num}GeV_nobib.pdf")
     plt.close()
 
 plt.errorbar(energies, bib_mean, yerr=[bib_low, bib_high], fmt='s', capsize=4, alpha=0.6, label="Bib")
 plt.errorbar(energies, nobib_mean, yerr=[nobib_low, nobib_high], fmt='o', capsize=4, alpha=0.6, label="Nobib")
 plt.xlabel("Beam Energy")
-plt.ylabel("Median number of Clusters per Event")
-plt.title("Median cluster multiplicity vs energy")
+plt.ylabel("Median number of Clusters per Event ")
+plt.title("Median cluster multiplicity vs energy Electron")
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
-plt.savefig("summary_cluster_bib2.pdf")
+plt.savefig("summary_clusterelec_bib2.pdf")
 plt.close()
 
 
-'''
+
 electron_lengths = {
     1: [1,5],
     2: [1,6],

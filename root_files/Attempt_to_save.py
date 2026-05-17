@@ -19,6 +19,8 @@ system2name = {
 #    2: [0, 100, 2663, 6595],
 #}
 
+#This is the working one!
+'''
 electron_events = {
     5: [0,32,9400,9664,9748],
     10: [0,3071,4000,4536],
@@ -46,6 +48,18 @@ pion_events = {
     200: [0,2,1124,1434,2029]
 }
 pion_5_bib = [0,1,2,3,4,5,6,7,8,9]
+'''
+#pion_events = {
+    #2: [7164, 8854, 2745, 3786, 5252, 4418, 9473, 6902, 4373, 9663, 8913, 4310, 3734, 9107, 4897, 2380, 7559, 514, 5814, 5694],
+    #10: [5178, 9112, 8120, 9038, 88, 6267, 2365, 6521, 3015, 3689, 8094, 3415, 5318, 8210, 6139, 1824, 5929, 7303, 2452, 1069],
+    #50: [468, 1086, 9038, 7116, 3268, 3834, 3418, 6985, 3696, 7920, 5694, 1393, 7297, 324, 9123, 271, 4441, 1280, 4224, 790],
+#}
+pion_events = {
+    2: [1568,7553,6837,9410,8006,8146,4010,9105,7811,7693,6790,7901,4635,9323,8916,7590,7684,8506,9779,5608],
+    10: [7320,1630,54,1530,3183,3400,5896,4404,5841,1228,8502,3651,6668,7763,2920,4280,8706,4786,3480,9376],
+    50: [7702,4875,2121,1817,9266,7122,8921,5783,9497,8726,4742,1244,4787,7103,8186,5361,6645,6766,3272,4434],
+}
+pion_energies = [2,10,50]
 def process_event(events, i, system2name):
 
     mcparticles = events["MCParticles"]
@@ -59,7 +73,9 @@ def process_event(events, i, system2name):
     py = mcparticles["MCParticles.momentum.y"].array()[i]
     pz = mcparticles["MCParticles.momentum.z"].array()[i]
     mass = mcparticles["MCParticles.mass"].array()[i]
-
+    mc_x = mcparticles["MCParticles.endpoint.x"].array()
+    mc_y = mcparticles["MCParticles.endpoint.y"].array()
+    mc_z = mcparticles["MCParticles.endpoint.z"].array()
     total_momentum = np.sqrt(px**2 + py**2 + pz**2)
     total_energy = np.sqrt(total_momentum**2 + mass**2)
 
@@ -154,18 +170,21 @@ def process_event(events, i, system2name):
         "num_tracks": num_tracks,
         "hit_dataframe": df,
         "full_event": whole_event,
-        "event_num": i
+        "event_num": i,
+        "Endpoint MCX": mc_x, 
+        "Endpoint MCY": mc_y,
+        "Endpoint MCZ": mc_z
     }
 
 
 #This is how you normally work it:
-'''for E in pion_energies:
+for E in pion_energies:
     print(f"Processing pion energy {E} GeV")
 
     file = uproot.open(
         f"/users/rldohert/data/mucoll/rldohert/"
-        f"pdg_211_pt_{E}_theta_15-15/"
-        f"reco_pdg_211_pt_{E}_theta_15-15.root"
+        f"pdg_211_pt_{E}_theta_15-15_bib2/"
+        f"reco_pdg_211_pt_{E}_theta_15-15_nobib.root"
     )
 
     events = file["events"]
@@ -176,13 +195,17 @@ def process_event(events, i, system2name):
     for i in pion_events[E]:
         event_data = process_event(events, i, system2name)
         event_data["energy_event"] = E
-        event_data["event_tag"] = "pion"
+        event_data["event_tag"] = "pion no bib"
         all_events_data.append(event_data)
 
     # Save per-energy pickle
-    with open(f"/users/rldohert/data/mucoll/rldohert/pion_energy_{E}.pkl", "wb") as f:
+    with open(f"/users/rldohert/data/mucoll/rldohert/pion_energy_{E}_nobib.pkl", "wb") as f:
         pickle.dump(all_events_data, f)
-    print(f"Saved pion_energy_{E}.pkl")'''
+    print(f"Saved pion_energy_{E}no.pkl")
+
+
+'''
+
 
    
 file = uproot.open("/users/rldohert/data/mucoll/rldohert/pdg_211_pt_5_theta_15-15/reco_pdg_211_pt_5_theta_15-15.root")
@@ -206,3 +229,4 @@ with open("/users/rldohert/data/mucoll/rldohert/pion_energy_50_211_bib_2_9.pkl",
     print(f"Saved pion_energy_50_nobib.pkl")
 
 #/users/rldohert/data/mucoll/rldohert/new_sim_pt50_0/reco_output_p50_211_nobib0.edm4hep.root
+'''

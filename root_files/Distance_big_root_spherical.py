@@ -90,6 +90,7 @@ for num in energies:
         mean_theta = []
         mean_phi = []
         for j in range(n_clusters):
+            print("Unique system IDs in this event:", np.unique(sysIDs))
             start = hits_begin_arr[j]
             end   = hits_end_arr[j]
             # vectorized slices of hits

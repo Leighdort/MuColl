@@ -1,3 +1,4 @@
+#This is all bib of a cluster
 # Widthroot_fast.py
 import numpy as np
 import math
@@ -30,10 +31,8 @@ sigma_std_per_energy = []
 print("this is next this is pions. This is bib")
 for num in energies:
     print(f"\n=== Energy {num} GeV ===")
-    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib/reco_pdg_211_pt_{num}_theta_15-15_bib.root")
-
+    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_bib.root")
     events = file["events"]
-
     sigma_eta_list_energy = []
     pandora_clusters_hits = events["_PandoraClusters_hits"]
     hit_index_all    = pandora_clusters_hits["_PandoraClusters_hits.index"].array()
@@ -46,7 +45,6 @@ for num in energies:
     posy = {}
     posz = {}
     energy_map = {}
-
     for name in real_systems:
         prefix = f"{name}/{name}"
         posx[name]   = events[f"{prefix}.position.x"].array()
@@ -56,38 +54,27 @@ for num in energies:
 
     # Loop over events
     for i in range(events.num_entries):
-
         if i % 1000 == 0:
             print(f"Event {i}")
-
-        hits_begin_arr = hits_begin_all[i] ####
-        hits_end_arr   = hits_end_all[i] ####
-
+        hits_begin_arr = hits_begin_all[i]
+        hits_end_arr   = hits_end_all[i]
         hit_index = hit_index_all[i]
-        collection_ID = collectionID_all[i] #####
-
+        collection_ID = collectionID_all[i]
         sigma_eta_percluster = []
-
         # Loop over clusters in the event
         for j in range(len(hits_begin_arr)):
-
             # cluster = slice of hits
-            lo = hits_begin_arr[j] #######
-            hi = hits_end_arr[j] #######
-
+            lo = hits_begin_arr[j]
+            hi = hits_end_arr[j]
             idxs = hit_index[lo:hi]
-            sysIDs = collection_ID[lo:hi] #######
-
+            sysIDs = collection_ID[lo:hi]
             if len(idxs) == 0:
                 continue
-
             # Vectorized system name lookups
             sysnames = np.vectorize(system2name.get)(sysIDs)
-
             if 'None' in sysnames.astype(str):
                 #print(f"Skipping cluster {j} in event {i} at energy {num} GeV due to unknown system ID")
                 continue
-            
             mask = (sysnames != "Skip")
             sysnames = sysnames[mask]
             idxs = idxs[mask]
@@ -98,47 +85,36 @@ for num in energies:
             ys = np.array([posy[s][i][idx] for s, idx in zip(sysnames, idxs)])
             zs = np.array([posz[s][i][idx] for s, idx in zip(sysnames, idxs)])
             weights = np.array([energy_map[s][i][idx] for s, idx in zip(sysnames, idxs)])
-
             if weights.sum() == 0:
                 continue
-
             # Weighted centroid (vectorized)
             x_c = np.sum(xs * weights) / np.sum(weights)
             y_c = np.sum(ys * weights) / np.sum(weights)
             z_c = np.sum(zs * weights) / np.sum(weights)
-
             # RMS in (x,y)
             r2 = (xs - x_c)**2 + (ys - y_c)**2
             r_rms = np.sqrt(np.average(r2, weights=weights))
-
             # Convert to eta-space
             mag_c = np.sqrt(x_c**2 + y_c**2 + z_c**2)
             if mag_c == 0:
                 continue
-
             theta_c = np.arccos(z_c / mag_c)
             eta_c = -np.log(np.tan(theta_c / 2.0))
-
             sigma_eta = np.arctan(r_rms / mag_c) * np.cosh(eta_c)
             sigma_eta_percluster.append(sigma_eta)
         # End cluster loop
-
-        if sigma_eta_percluster:
-            mean_width = np.median(sigma_eta_percluster) #Ok taking the median width 
-            sigma_eta_list_energy.append(mean_width)
-
-    # End event loop
-
-    if sigma_eta_list_energy:
-        sigma_median_per_energy.append(np.median(sigma_eta_list_energy))
-        #sigma_std_per_energy.append(np.std(sigma_eta_list_energy))
-        #sigma_eta_list_energy holds energy
-        median = np.median(sigma_eta_list_energy)
-        q16, q84 = np.percentile(sigma_eta_list_energy, [16, 84])
+    if sigma_eta_percluster:
+        sigma_eta_percluster = np.array(sigma_eta_percluster)
+        median = np.median(sigma_eta_percluster) #Ok taking the median width 
+        q16, q84 = np.percentile(sigma_eta_percluster, [16, 84])
         low = median - q16
         high = q84 - median
-        bins = np.linspace(np.min(sigma_eta_list_energy), np.max(sigma_eta_list_energy), 30)
-        plt.hist(sigma_eta_list_energy, bins=bins, alpha = 0.7)
+        print(f"energy {num}")
+        print(f"median {median}")
+        print(f"low {low}")
+        print(f"high {high}")
+        bins = 30
+        plt.hist(sigma_eta_percluster, bins=bins, alpha = 0.7)
         plt.axvline(median,
             color = 'red',
             linestyle='--',
@@ -149,6 +125,5 @@ for num in energies:
         plt.ylabel("Count")
         plt.title(f"Cluster Widths at {num} GeV Pion with Bib")
         plt.tight_layout()
-        plt.savefig(f"width_hist_{num}_pions10_bib.pdf")
+        plt.savefig(f"width_hist_{num}_pions_bib.pdf")
         plt.close()
-        print(f"Energy {num} GeV → Median width, Bib = {median:.5f}, Upper = {high:.5f}, Lower = {low:.5f}")

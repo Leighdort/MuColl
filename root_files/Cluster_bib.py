@@ -2,7 +2,7 @@
 #Here I am going to look at energy differences with one cluster
 #Energy difference 1 cluster
 #Energy difference between leading and secondary for bib when 1 cluster
-#Submit_bibnbib.sh
+#Submit_clusterbib.py
 
 # Widthroot_fast.py
 import numpy as np
@@ -28,8 +28,8 @@ nclus_low = []
 nclus_high = []
 for num in energies:
     print(f"\n=== Energy {num} GeV ===")
-    file_nobib = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib/reco_pdg_211_pt_{num}_theta_15-15_nobib.root")
-    file_bib = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib/reco_pdg_211_pt_{num}_theta_15-15_bib.root")
+    file_nobib = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_nobib.root")
+    file_bib = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_bib.root")
     events_nobib = file_nobib["events"]
     events_bib = file_bib["events"]
     pandora_clusters_nobib = events_nobib["PandoraClusters"]

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import uproot
 
 #choices = [1, 2, 5, 10, 50, 100, 150, 200]
-choices = [2, 50]
+choices = [2, 10, 50]
 #First I will see the ratio of particle w/ status 0, its energy to leading cluster energy
 bib_mean = []
 bib_low = []

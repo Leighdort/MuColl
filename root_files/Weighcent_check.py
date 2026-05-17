@@ -3,6 +3,7 @@
 #Is x, y, z in the clusters = energy weighted center?
 #The hope is yes!
 
+#Submit_weightcheck.sh
 # Getting the energy weighted center
 import numpy as np
 import math
@@ -23,7 +24,7 @@ energies = [2]
 #Let's just check no bibs, difference in theta and phi
 
 for num in energies:
-    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib/reco_pdg_211_pt_{num}_theta_15-15_nobib.root")
+    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_nobib.root")
     events = file["events"]
     dif_x = []
     dif_y = []
@@ -42,7 +43,7 @@ for num in energies:
     pos = {}
     ener = {}
 
-    for name in system2name.values():
+    for name in real_systems:
         prefix = f"{name}/{name}"
         pos[name] = {
             "x": events[f"{prefix}.position.x"].array(),
@@ -81,6 +82,8 @@ for num in energies:
             # group by system to avoid looping per hit
             for sysid in np.unique(ids):
                 sysname = system2name[sysid]
+                if sysname is None or sysname == "Skip":
+                    continue
                 mask = (ids == sysid)
                 idxs = indices[mask]
 
@@ -98,26 +101,37 @@ for num in energies:
             #These are the weighted centers
             clusx = cluster_x[i][j]
             clusy = cluster_y[i][j]
-            clus_z = cluster_z[i][j]
+            clusz = cluster_z[i][j]
             dif_x.append(clusx-x_c)
             dif_y.append(clusy-y_c)
             dif_z.append(clusz-z_c)
     dif_x = np.array(dif_x)
     dif_y = np.array(dif_y)
     dif_z = np.array(dif_z)
-    plt.hist(dif_x, bins=50, edgecolor='black')
+    med_x = np.median(dif_x)
+    med_y = np.median(dif_y)
+    med_z = np.median(dif_z)
+    std_x = np.std(dif_x, ddof=1)
+    std_y = np.std(dif_y, ddof=1)
+    std_z = np.std(dif_z, ddof=1)
+    print("=== Difference statistics ===")
+    print(f"X: median = {med_x:.4e}, std = {std_x:.4e}")
+    print(f"Y: median = {med_y:.4e}, std = {std_y:.4e}")
+    print(f"Z: median = {med_z:.4e}, std = {std_z:.4e}")
+    
+    plt.hist(dif_x, bins=10, edgecolor='black')
     plt.title("Difference in X")
     plt.xlabel("Difference")
     plt.tight_layout()
     plt.savefig("x_difference.png")
     plt.close()
-    plt.hist(dif_y, bins=50, edgecolor='black')
+    plt.hist(dif_y, bins=10, edgecolor='black')
     plt.title("Difference in Y")
     plt.xlabel("Difference")
     plt.tight_layout()
     plt.savefig("y_difference.png")
     plt.close()
-    plt.hist(dif_z, bins=50, edgecolor='black')
+    plt.hist(dif_z, bins=10, edgecolor='black')
     plt.title("Difference in Z")
     plt.xlabel("Difference")
     plt.tight_layout()
