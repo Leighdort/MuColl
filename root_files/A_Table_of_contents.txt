@@ -1,3 +1,5 @@
+#Ends at Clus_clusfraction.py
+
 Cluster_mc_dist.py 5/16/26
 -> Distance from the center of a one cluster event to the corresponding initial mc particle. This will also return the 95% of distance. Used to find the distance to match bib-clusters.
 Vector_mc_fraction_nobib.py
@@ -32,6 +34,10 @@ Stats.py
 -> Tells you events that make 1 cluster cut, and then distance cut *
 Cluster_threshold.py
 -> Stacked like 1 cluster, 2 cluster, 3 cluster to max cluster to show that 1 cluster is a good amount
+Bib_nobib.py
+-> Compares the bib to nobib cluster. Aka number of bib cluster, difference in energy between two bib leading clusters given original 1 cluster event, then difference in energy btw two bib leading clusters (this was a pre-matching thing)
+Checklengthroot.py
+-> Checks the number of events in a root file
 
 "Distances"
 Distance_big_root.py
@@ -42,10 +48,19 @@ Check_mc.py
 -> Checking different types of distance before we settled on the chosen distance metric, like between cluster center and what aspect of mc particle
 Mc_cluster.py
 -> Gives you 98th percentile, this is likely the same as Cluster_mc_dist.py. Fun fact, I forgot this file existed, which is why I'm writing this list now
+Barycenter_lead.py
+-> Finding average barycetner per energy, believe this is just for leading cluster
+Barycenter_root.py
+-> Finding average barycenter, I believe a summary overall or per event -> should check w/ this
+
+"Saving files to then process w/ colab"
+Attempt_to_save.py
+-> Actually saves important information to output in a non-annoying root file. Supposedly this one works!
+
 
 
 "Response"
-Calibration3.py
+Calibration_3.py
 ->Comparing baseline, 4 cal, 4 cal corrected for 15 and 85 on one graph 
 Fraction_ratio2.py **
 ->Gives you the response gaussian separated into two peaks based on hits 
