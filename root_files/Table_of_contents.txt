@@ -1,4 +1,4 @@
-Cluster_mc_dist.py
+Cluster_mc_dist.py 5/16/26
 -> Distance from the center of a one cluster event to the corresponding initial mc particle. This will also return the 95% of distance. Used to find the distance to match bib-clusters.
 Vector_mc_fraction_nobib.py
 -> Not very useful, used to compare vector computed distances to the bounds set via hand computed distances.
@@ -10,4 +10,18 @@ Attempt_split.py
 -> Used to try to split up files, likely for pre-bib purposes
 Pion_chosen.py
 -> To feed certain event numbers and output fraction of the mc particle, cluster index, distance from mc particle, used to approach outliers
+Weird_counts.py
+-> Gives you punchthrough rate
+Time_root.py
+-> Gives you the times of the hits and or clusters **unsure
+Fraction_pfos.py
+-> takes total energy of the pfo / mc particle energy. This is pfo response
 
+
+Files
+-> if it ends in bib2, this is no calibration applied
+-> calib10 has the 4 numbers that are changed, this is found in a presented slideshow to a thursday meeting
+-> basesoft is no calibration applied but with the software turned off
+-> base_soft_20 is software on, with 20% bib
+-> base_nosoft_20 is software off, with 20% bib
+-> 
