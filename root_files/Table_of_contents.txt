@@ -1,2 +1,13 @@
 Cluster_mc_dist.py
 -> Distance from the center of a one cluster event to the corresponding initial mc particle. This will also return the 95% of distance. Used to find the distance to match bib-clusters.
+Vector_mc_fraction_nobib.py
+-> Not very useful, used to compare vector computed distances to the bounds set via hand computed distances.
+Bib_width.py
+-> Used to find width of closest cluster with bib
+Nobib_width.py
+-> Used to find width of single cluster without bib
+Attempt_split.py
+-> Used to try to split up files, likely for pre-bib purposes
+Pion_chosen.py
+-> To feed certain event numbers and output fraction of the mc particle, cluster index, distance from mc particle, used to approach outliers
+
