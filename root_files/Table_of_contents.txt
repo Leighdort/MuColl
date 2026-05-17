@@ -2,8 +2,12 @@ Cluster_mc_dist.py 5/16/26
 -> Distance from the center of a one cluster event to the corresponding initial mc particle. This will also return the 95% of distance. Used to find the distance to match bib-clusters.
 Vector_mc_fraction_nobib.py
 -> Not very useful, used to compare vector computed distances to the bounds set via hand computed distances.
+Widthroot.py
+-> Gives you cluster width. I think a precurser to the files that follow. Very very slow if I remember correctly. 
 Bib_width.py
 -> Used to find width of closest cluster with bib
+Bib_allwidths.py
+-> Not quite sure what the difference is between this and the above file
 Nobib_width.py
 -> Used to find width of single cluster without bib
 Attempt_split.py
@@ -37,7 +41,7 @@ Distance_big_root_spherical.py
 Check_mc.py
 -> Checking different types of distance before we settled on the chosen distance metric, like between cluster center and what aspect of mc particle
 Mc_cluster.py
--> 
+-> Gives you 98th percentile, this is likely the same as Cluster_mc_dist.py. Fun fact, I forgot this file existed, which is why I'm writing this list now
 
 
 "Response"
@@ -49,6 +53,8 @@ Energy_check.py **
 -> Checking response and calibrated via energy in ecal/hcal and also using energy based gaussian separation not hit based
 Mc_fraction_nobib.py
 -> Response w/ bounds (bib and nobib)
+Mc_fraction_bib.py **
+-> Same as above but for bib clusters. Aka it does the matching algorithm 
 Response_scatter.py
 ->I believe gives the same as below, the scatter plot but this time with calibrated data.
 Fraction_v_ratio.py
@@ -75,6 +81,10 @@ Energy_ratio.py
 -> Checking difference between ecal/hcal energy added together vs cluster energy with software on and off
 Hit_clusresponse.py
 -> Difference between cluster adn total hit energy
+
+#Not in Commision#
+Track_countsnew.py
+-> Does not work, attempt to pick out the correct tracks to get the correct track count
 
 
 Files
