@@ -33,7 +33,8 @@ for pid in particles:
             distances = []
             count = 0
             passes = 0
-            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_bib2/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
+            #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_bib2/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
+            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_basesoft/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
             events = file["events"]
             pandora_clusters = events["PandoraClusters"]
             #I need the theta phi of mc and of clusters 
@@ -96,7 +97,7 @@ for pid in particles:
                 label=f"Median = {median:.2f}"
             )
             plt.legend()
-            plt.title(f"One Cluster Distance from MC particle for {e}, {pid}, {a}")
+            plt.title(f"One Cluster Distance from MC particle for {e}, {pid}, {a} No Software")
             plt.tight_layout()
-            plt.savefig(f"distance_from_MC_{e}_{pid}_{a}.pdf")
+            plt.savefig(f"distance_from_MC_{e}_{pid}_{a}_nosoftware.pdf")
             plt.close()
