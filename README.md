@@ -1,0 +1,256 @@
+# Muon Collider Analysis Scripts
+
+#The following files are in root, which work with the current gaudi image 
+**Up to date as of May 21, 2026**
+
+---
+
+# General Scripts
+
+### `Cluster_mc_dist.py` (5/16/26)
+- Distance from the center of a one cluster event to the corresponding initial mc particle. This will also return the 95% of distance. Used to find the distance to match bib-clusters.
+
+### `Cluster_bib_matching.py` (5/18/26)
+- Used to take in very large root files and find the matched cluster from the mc particle. Is not limited to 1 cluster. Outputs root files.
+
+### `Vector_mc_fraction_nobib.py`
+- Not very useful, used to compare vector computed distances to the bounds set via hand computed distances.
+
+### `Widthroot.py`
+- Gives you cluster width. I think a precurser to the files that follow. Very very slow if I remember correctly.
+
+### `Bib_width.py`
+- Used to find width of closest cluster with bib.
+
+### `Bib_allwidths.py`
+- Not quite sure what the difference is between this and the above file.
+
+### `Nobib_width.py`
+- Used to find width of single cluster without bib.
+
+### `Attempt_split.py`
+- Used to try to split up files, likely for pre-bib purposes.
+
+### `Pion_chosen.py`
+- To feed certain event numbers and output fraction of the mc particle, cluster index, distance from mc particle, used to approach outliers.
+
+### `Weird_counts.py`
+- Gives you punchthrough rate.
+
+### `Weird_counts_energy.py`
+- Gives you enery out of total energy for punchthrough rate.
+
+### `Timeroot.py`
+- Gives you the times of the hits and or clusters **unsure**.
+
+### `Time_root_cluster.py`
+- Graphing max time in the ecal and min time in the hcal.
+
+### `Printing_files.py`
+- Pretty not useful, just summery making when you have to combine multiple outputs.
+
+### `Numclustersroot.py`
+- Spread of number of clusters in an event.
+
+### `Stats.py`
+- Tells you events that make 1 cluster cut, and then distance cut *.
+
+### `Cluster_threshold.py`
+- Stacked like 1 cluster, 2 cluster, 3 cluster to max cluster to show that 1 cluster is a good amount.
+
+### `Bib_nobib.py`
+- Compares the bib to nobib cluster. Aka number of bib cluster, difference in energy between two bib leading clusters given original 1 cluster event, then difference in energy btw two bib leading clusters (this was a pre-matching thing).
+
+### `Checklengthroot.py`
+- Checks the number of events in a root file.
+
+### `Cluster_bib.py`
+- Number of Bib clusters given original 1 cluster event.
+
+### `Clusters.py`
+- Number of events over a cluster threshold and Response at different energies.
+
+### `Combine_files.sh`
+- Tries to combine jobs into one root file I believe.
+
+### `Difference_phi_root.py`
+- Track theta - leading cluster theta (may be using the wrong track instance, would need to check).
+
+### `Makegraphs.py`
+- Just makes a basic graph, you must input your own numbers.
+
+### `Numtracks_root.py`
+- Median number tracks, I think I used it with bib. May not be looking at the right track location.
+
+### `Submit_combine.sh`
+- Just a basic batch job submitter.
+
+### `Testing_root.py`
+- This just makes sure your root files open, was used when I switched over to the new version w/ edm4hep.root files instead of .slcio to gain comfort.
+
+### `Weighcent_check.py`
+- In the old model the energy weighted center != the position value for the cluster. (Center of gravity may be the name, or barycenter). In this new version, this file checked that that is no longer problematic.
+
+### `Weightedcenter.py`
+- Not sure the difference between this adn the above file. Both could hypothetically be used as inspiration.
+
+---
+
+# Distances
+
+### `Distance_big_root.py`
+- Distance between cluster centers, aka average distance in an event from cluster 0 to 1 1 to 2 0 to 2. You should just choose distance to leading cluster in the future.
+
+### `Distance_big_root_spherical.py`
+- Average spherical distance between all cluster centers.
+
+### `Distance_big_root_lead.py`
+- Distance between cluster center to leading cluster.
+
+### `Check_mc.py`
+- Checking different types of distance before we settled on the chosen distance metric, like between cluster center and what aspect of mc particle.
+
+### `Mc_cluster.py`
+- Gives you 98th percentile, this is likely the same as Cluster_mc_dist.py. Fun fact, I forgot this file existed, which is why I'm writing this list now.
+
+### `Barycenter_lead.py`
+- Finding average barycetner per energy, believe this is just for leading cluster.
+
+### `Barycenter_root.py`
+- Finding average barycenter, I believe a summary overall or per event -> should check w/ this.
+
+### `Difference_root.py`
+- Gives distance between the track and cluster, may once again use the wrong track.
+
+---
+
+# Saving Files to Then Process w/ Colab
+
+### `Attempt_to_save.py`
+- Actually saves important information to output in a non-annoying root file. Supposedly this one works!
+
+---
+
+# Response
+
+### `Response_bib.py` (5/19/26)
+- Given separately made root files with just the matched clusters calculates and makes gaussians for response.
+
+### `Calibration_3.py`
+- Comparing baseline, 4 cal, 4 cal corrected for 15 and 85 on one graph.
+
+### `Fraction_ratio2.py` **
+- Gives you the response gaussian separated into two peaks based on hits.
+
+### `Gaussian_res.py` **
+- A summery response gaussian maker, looks at many things on one graph **.
+
+### `Gaussian_res_base.py` * (5/17/26)
+- Same as above but just for base, not putting everything on one graph or calibrating.
+
+### `Energy_check.py` **
+- Checking response and calibrated via energy in ecal/hcal and also using energy based gaussian separation not hit based.
+
+### `Fraction_ratio2.py` **
+- Finds response and tries to calibrate.
+
+### `Mc_fraction_nobib.py`
+- Response w/ bounds (bib and nobib).
+
+### `Mc_fraction_bib.py` **
+- Same as above but for bib clusters. Aka it does the matching algorithm.
+
+### `Hit_clusresponse.py`
+- Compares response based on cluster energy versus energy of all the hits. Conclusion: that may just be problematic b/c it's different due to some scaling factor. Just use Cluster energy for now.
+
+### `Response_scatter.py`
+- I believe gives the same as below, the scatter plot but this time with calibrated data.
+
+### `Fraction_v_ratio.py`
+- Scatter plot of response vs fraction of hits in certain parts of the detector.
+
+### `Mc_fraction_trial.py`
+- Comparing baseline with the shifted/corrected calibration.
+
+### `Manual_calibration.py`
+- I thinked a failed calibration attempt, I don't think I ever used it?
+
+### `Location_hits.py`
+- Not sure what this is. It looks like it works I don't remember ever using it.
+
+### `Pfos_vs_response.py`
+- Checking to see the pfo distribution above and below ratio of hits in the Ecal. Conclusion was, at least with tracking turned off, this is no difference.
+
+### `Comparing.py`
+- Making summary graphs for response and resolution with bib and nobib.
+
+### `Clus_clusfraction.py`
+- Energy of the bib cluster / energy of the original cluster.
+
+### `Fraction_all.py`
+- I believe sums up all the clusters and finds the difference between all the clusters and the MC particle energy.
+
+### `Fraction_pfos.py`
+- Takes total energy of the pfo / mc particle energy. This is pfo response.
+
+### `Fraction_root.py`
+- Finds response but response for just the leading cluster, no matching done.
+
+---
+
+# Resolution
+
+### `Nobib_resolution.py`
+- Looking at resolution for nobib.
+
+### `Bib_resolution.py`
+- Looking at resolution for events with bibs within bounds, likely just for neutrons??
+
+---
+
+# Software
+
+### `Energy_ratio.py`
+- Checking difference between ecal/hcal energy added together vs cluster energy with software on and off.
+
+### `Hit_clusresponse.py`
+- Difference between cluster adn total hit energy.
+
+---
+
+# Not in Commission
+
+### `Track_countsnew.py`
+- Does not work, attempt to pick out the correct tracks to get the correct track count.
+
+### `Decoding_cellID.py`
+- An attempt to figure out what the cell ID is to find layer -> I believe this fails.
+
+### `Help_bad.py`
+- Pretty self explanatory. Doesn't do anything. It's just bad.
+
+### `Saving_files.py`
+- Fairly certain/positive this version fails. Do not use. Was once used to download data for colab.
+
+---
+
+# May Be Broken...
+
+### `Save_attempt_two.py`
+- Attempt at saving things to a pickle file to download for colab. May be broken. I believe it's broken.
+
+### `Save_pheonix.py`
+- I think it works. I just wouldn't use this. This is to download files to make pretty things for a pheonix graph. I did infact get lines to show up plotting with this data in the pheonix website, but it wasn't nice looking nor informative. Could be a place to start.
+
+### `Test_hadd.sh`
+- Just don't use this. I think this is the precurser to combining files. So look to that .sh file instead.
+
+---
+
+# Files
+
+- If it ends in `bib2`, this is no calibration applied.
+- `calib10` has the 4 numbers that are changed, this is found in a presented slideshow to a thursday meeting.
+- `basesoft` is no calibration applied but with the software turned off.
+- `base_soft_20` is software on, with 20% bib.
+- `base_nosoft_20` is software off, with 20% bib.
