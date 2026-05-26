@@ -132,6 +132,8 @@
 ---
 
 # Response
+### `Response_bib_summery.py` (5/24/26)
+- Same thing as Response_bib.py just geared for making summery graphs.
 
 ### `Response_bib.py` (5/19/26)
 - Given separately made root files with just the matched clusters calculates and makes gaussians for response.
