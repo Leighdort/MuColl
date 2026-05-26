@@ -39,18 +39,18 @@ bounds_software_off = {
     }
 }
 file = uproot.open
-angle = [15]
+angle = [85]
 particle = [11]
 for pid in particle: 
     for num in energies:
         for a in angle:
             files = [
-                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_base_soft_20/reco_chunk_1.root",
-                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_base_soft_20/reco_chunk_2.root",
-                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_base_soft_20/reco_chunk_3.root",
-                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_base_soft_20/reco_chunk_4.root",
+                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_calib10/reco_chunk_1.root",
+                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_calib10/reco_chunk_2.root",
+                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_calib10/reco_chunk_3.root",
+                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_calib10/reco_chunk_4.root",
             ]
-            bound = bounds_software_on[pid][a][num]
+            bound = bounds_software_off[pid][a][num]
             matched_clusters = []
             for f in files: 
                 print(f"\n=== Energy {num} GeV ===")
@@ -77,11 +77,19 @@ for pid in particle:
                     cluster_y_bib=pandora_clusters["PandoraClusters.position.y"].array()
                     cluster_z_bib=pandora_clusters["PandoraClusters.position.z"].array()
                     cluster_energy_bib=pandora_clusters["PandoraClusters.energy"].array()
-                    
                     angular_dist = []
                     regular_dist = []
+                    pandora_clusters_hits = events["_PandoraClusters_hits"]
+                    hit_index_all    = pandora_clusters_hits["_PandoraClusters_hits.index"].array()
+                    collectionID_all = pandora_clusters_hits["_PandoraClusters_hits.collectionID"].array()
+                    hits_begin_all = pandora_clusters["PandoraClusters.hits_begin"].array()
+                    hits_end_all   = pandora_clusters["PandoraClusters.hits_end"].array()
                     #Let's right now just filter
                     for i in range((events.num_entries)):
+                        ecal_barrel = 0
+                        hcal_barrel = 0
+                        ecal_endcap = 0
+                        hcal_endcap = 0
                         if (i % 100 == 0):
                             print(i)
                         #Let's just right now filter for events with only 1 cluster
@@ -101,6 +109,7 @@ for pid in particle:
                             mc_phi = np.arctan2(my, mx)
                             #Store cluster energy if passes
                             clus_array = []
+                            clus_indices = []
                             #Ok it's no longer going to work for just 1 cluster
                             for j in range(len(cluster_energy_bib[i])):
                                 cx = cluster_x_bib[i][j] 
@@ -116,12 +125,39 @@ for pid in particle:
                                 angular_distance = np.arccos(cosang)  
                                 if angular_distance <= bound:
                                     clus_array.append(cenergy)
+                                    clus_indices.append(j)
                             if len(clus_array) == 0:
                                 continue
                             clus_array = np.array(clus_array)
                             max_energy = np.max(clus_array)
                             mc_momentum = np.sqrt(momx**2 + momy**2 + momz**2)
                             mc_energy = np.sqrt(mcmass*mcmass + mc_momentum*mc_momentum)
+                            matched_local = np.argmax(clus_array)
+                            matched_index = clus_indices[matched_local]
+
+                            #Now I will be getting ecal_hits and hcal_hits thing
+                            hits_begin_arr = hits_begin_all[i]
+                            hits_end_arr = hits_end_all[i]
+                            hit_index = hit_index_all[i]
+                            collection_ID = collectionID_all[i]
+                            lo = hits_begin_arr[matched_index]
+                            hi = hits_end_arr[matched_index]
+                            idxs = hit_index[lo:hi]
+                            sysIDs = collection_ID[lo:hi]
+                            for code in sysIDs:
+                                if code == 679272617:
+                                    #print ("hi")
+                                    ecal_barrel +=1
+                                if code == 1573202488: 
+                                    #print("hi")
+                                    hcal_barrel +=1
+                                    #print ("hii")
+                                if code == 3383333369:
+                                    ecal_endcap +=1
+                                    #print ("hiii")
+                                if code == 2381985645:
+                                    hcal_endcap +=1
+                                    #print ("hiiii")
                             matched_clusters.append({
                                 "event": i,
                                 "pid": pid,
@@ -129,7 +165,12 @@ for pid in particle:
                                 "angle": a,
                                 "matched_energy": max_energy,
                                 "mc_energy": mc_energy,
+                                "ecal_barrel": ecal_barrel,
+                                "hcal_barrel": hcal_barrel,
+                                "ecal_endcap": ecal_endcap,
+                                "hcal_endcap": hcal_endcap,
                             })
+                            
                             #Want to store array of event, and matched cluster, with whether its software, no software, degrees, pt
                             #I just want it to pick out the matched clusters
                                 # ==========================================
@@ -139,7 +180,7 @@ for pid in particle:
             if len(matched_clusters) == 0:
                 print("No matches found — skipping file write")
                 continue
-            outfile = f"matched_clusters_pid{pid}_E{num}_theta{a}_software_on.root"
+            outfile = f"matched_clusters_pid{pid}_E{num}_theta{a}_calib10.root"
             output_data = {
                 "event": np.array([x["event"] for x in matched_clusters], dtype=np.int32),
                 "pid": np.array([x["pid"] for x in matched_clusters], dtype=np.int32),
@@ -147,6 +188,10 @@ for pid in particle:
                 "angle": np.array([x["angle"] for x in matched_clusters], dtype=np.float64),
                 "matched_energy": np.array([x["matched_energy"] for x in matched_clusters], dtype=np.float64),
                 "mc_energy": np.array([x["mc_energy"] for x in matched_clusters], dtype=np.float64),
+                "ecal_barrel": np.array([x["ecal_barrel"] for x in matched_clusters], dtype=np.int32),
+                "hcal_barrel": np.array([x["hcal_barrel"] for x in matched_clusters], dtype=np.int32),
+                "ecal_endcap": np.array([x["ecal_endcap"] for x in matched_clusters], dtype=np.int32),
+                "hcal_endcap": np.array([x["hcal_endcap"] for x in matched_clusters], dtype=np.int32),
             }
 
             with uproot.recreate(outfile) as fout:
