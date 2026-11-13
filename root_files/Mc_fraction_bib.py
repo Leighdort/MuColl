@@ -27,9 +27,10 @@ system2name = {
     3403901740: "Skip",
 }
 real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec","EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
-energies = [2, 10, 50]
-choices = [2, 10, 50]
-
+#energies = [2, 10, 50]
+#choices = [2, 10, 50]
+energies = [50]
+choices = [50]
 mc_median= []
 mc_low = []
 mc_high = []
@@ -135,7 +136,14 @@ for num in energies:
     mc_low.append(median-q16)
     mc_high.append(q84-median)
     mc_median.append(median)
-    bins=30
+    bins = 30
+    plt.hist(
+        fraction,
+        bins=bins,
+        range=(0.6, 1.4),
+        edgecolor='black'
+    )
+    plt.xlim(0.6, 1.4)
     plt.hist(fraction, bins=bins, edgecolor = 'black')
     plt.xlabel(f"Response with Bib")
     plt.ylabel("Count")

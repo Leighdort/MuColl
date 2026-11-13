@@ -54,28 +54,37 @@ pion_5_bib = [0,1,2,3,4,5,6,7,8,9]
     #10: [5178, 9112, 8120, 9038, 88, 6267, 2365, 6521, 3015, 3689, 8094, 3415, 5318, 8210, 6139, 1824, 5929, 7303, 2452, 1069],
     #50: [468, 1086, 9038, 7116, 3268, 3834, 3418, 6985, 3696, 7920, 5694, 1393, 7297, 324, 9123, 271, 4441, 1280, 4224, 790],
 #}
+'''
 pion_events = {
     2: [1568,7553,6837,9410,8006,8146,4010,9105,7811,7693,6790,7901,4635,9323,8916,7590,7684,8506,9779,5608],
     10: [7320,1630,54,1530,3183,3400,5896,4404,5841,1228,8502,3651,6668,7763,2920,4280,8706,4786,3480,9376],
     50: [7702,4875,2121,1817,9266,7122,8921,5783,9497,8726,4742,1244,4787,7103,8186,5361,6645,6766,3272,4434],
 }
-pion_energies = [2,10,50]
+'''
+pion_events = {
+    50: [539, 1606, 2267, 2351, 2585, 2605, 3665, 3605, 3799, 3914, 4709, 4872],
+    #50: [1, 3, 4, 5, 7, 8, 9, 10, 13]
+}
+pion_energies = [50]
 def process_event(events, i, system2name):
 
     mcparticles = events["MCParticles"]
     deduped_tracks = events["DedupedTracks_objIdx"]
     clusters = events["PandoraClusters"]
     pch = events["_PandoraClusters_hits"]
-
+    pandora_clusters = events["PandoraClusters"]
+    cluster_x=pandora_clusters["PandoraClusters.position.x"].array()[i]
+    cluster_y=pandora_clusters["PandoraClusters.position.y"].array()[i]
+    cluster_z=pandora_clusters["PandoraClusters.position.z"].array()[i]
     particle_ids = mcparticles["MCParticles.PDG"].array()[i]
 
     px = mcparticles["MCParticles.momentum.x"].array()[i]
     py = mcparticles["MCParticles.momentum.y"].array()[i]
     pz = mcparticles["MCParticles.momentum.z"].array()[i]
     mass = mcparticles["MCParticles.mass"].array()[i]
-    mc_x = mcparticles["MCParticles.endpoint.x"].array()
-    mc_y = mcparticles["MCParticles.endpoint.y"].array()
-    mc_z = mcparticles["MCParticles.endpoint.z"].array()
+    mc_x = mcparticles["MCParticles.endpoint.x"].array()[i]
+    mc_y = mcparticles["MCParticles.endpoint.y"].array()[i]
+    mc_z = mcparticles["MCParticles.endpoint.z"].array()[i]
     total_momentum = np.sqrt(px**2 + py**2 + pz**2)
     total_energy = np.sqrt(total_momentum**2 + mass**2)
 
@@ -157,11 +166,8 @@ def process_event(events, i, system2name):
         "y": all_y,
         "z": all_z,
         "cluster": cluster_id,
-        "energy": all_e
+        "energy": all_e,
     })
-#x from 100 -500
-# y from  400 900
-# z from  2300 3800
     return {
         "mcparticle_ids": particle_ids,
         "mcparticle_momentum": total_momentum,
@@ -173,20 +179,20 @@ def process_event(events, i, system2name):
         "event_num": i,
         "Endpoint MCX": mc_x, 
         "Endpoint MCY": mc_y,
-        "Endpoint MCZ": mc_z
+        "Endpoint MCZ": mc_z,
+        "clus_x_cent": cluster_x,
+        "clus_y_cent": cluster_y,
+        "clus_z_cent": cluster_z,
     }
 
 
 #This is how you normally work it:
 for E in pion_energies:
     print(f"Processing pion energy {E} GeV")
-
-    file = uproot.open(
-        f"/users/rldohert/data/mucoll/rldohert/"
-        f"pdg_211_pt_{E}_theta_15-15_bib2/"
-        f"reco_pdg_211_pt_{E}_theta_15-15_nobib.root"
-    )
-
+    #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{E}_theta_15-15_bib2/job_0/reco_output_p{E}_211_nobib0.edm4hep.root")
+    #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_50_theta_85-85_clustertest/reco_pdg_211_pt_50_theta_85-85_bib.root")
+    file = uproot.open("/users/rldohert/data/mucoll/rldohert/pdg_211_pt_50_theta_85-85_testing_fede2/job_0/reco_output_p50_211_nobib0.edm4hep.root")
+    #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_85-85_fedecheck/job_0/reco_output_p__nobib_oldalg.edm4hep.root")
     events = file["events"]
     n_events = len(events["MCParticles"]["MCParticles.PDG"].array())
 
@@ -195,11 +201,11 @@ for E in pion_energies:
     for i in pion_events[E]:
         event_data = process_event(events, i, system2name)
         event_data["energy_event"] = E
-        event_data["event_tag"] = "pion no bib"
+        event_data["event_tag"] = "pion 50 nobib 85 new algorithm max isolation & hcal frac "
         all_events_data.append(event_data)
 
     # Save per-energy pickle
-    with open(f"/users/rldohert/data/mucoll/rldohert/pion_energy_{E}_nobib.pkl", "wb") as f:
+    with open(f"/users/rldohert/data/mucoll/rldohert/pion_10_20_85.pkl", "wb") as f:
         pickle.dump(all_events_data, f)
     print(f"Saved pion_energy_{E}no.pkl")
 

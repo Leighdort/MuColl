@@ -4,54 +4,125 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import uproot
 
-energies = [2, 10, 50]
 max_clusters = 10
-choices = [2, 10, 50]
+particles = [11, 211]
+energies = [2, 5, 10, 30, 50, 75]
+choices = [2, 5, 10, 30, 50, 75]
+angles = [15, 85]
 
-cluster_counts = {num: np.zeros(max_clusters, dtype=int) for num in energies}
-
-for num in energies:
-    print(f"\n=== Energy {num} GeV ===")
+results = {
+    (11, 15): [],
+    (11, 85): [],
+    (211, 15): [],
+    (211, 85): []
+}
+particle_labels = {
+    11: "electron (e⁻)",
+    211: "pion (π⁺)"
+}
+for pid in particles:
+    for a in angles:
+        for num in energies:
+            count = 0
+            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_bib2/job_0/reco_output_p{num}_{pid}_nobib0.edm4hep.root")
+            events = file["events"]
+            pandora_clusters = events["PandoraClusters"]
+            cluster_energy = pandora_clusters["PandoraClusters.energy"].array()
+            for i in range(5000):
+                if len(cluster_energy[i]) == 1:
+                    count = count+1
+            total = count / 5000
+            results[(pid, a)].append(total)
+# Loop through each configuration in your dictionary and plot it
+for (pid, angle), efficiency_list in results.items():
+    label_text = f"{particle_labels[pid]}, θ = {angle}°"
     
-    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_nobib.root")
-    events = file["events"]
-    pandora_clusters = events["PandoraClusters"]
-    cluster_energy = pandora_clusters["PandoraClusters.energy"].array()
-
-    for i in range(events.num_entries):
-        n = len(cluster_energy[i])
-        if 1 <= n <= max_clusters:
-            cluster_counts[num][n - 1] += 1
-
-# Plot — energy on x axis, cumulative events on y axis
-fig, ax = plt.subplots(figsize=(9, 6))
-
-markers = ['o', 's', '^']
-colors = ['blue', 'orange', 'red']
-
-for cluster_n in range(max_clusters):
-    # For each cluster count (1,2,3...) get cumulative sum up to that point for each energy
-    y_vals = [np.sum(cluster_counts[num][:cluster_n + 1]) for num in energies]
-    ax.plot(
-        choices,
-        y_vals,
-        marker='o',
-        label=f"Up to {cluster_n + 1} cluster(s)"
+    # Plot energy on x-axis, efficiency on y-axis
+    plt.plot(
+        energies, 
+        efficiency_list, 
+        marker='o',          # Adds dots at data points
+        linestyle='-',       # Connects them with a solid line
+        linewidth=2,
+        label=label_text
     )
 
-ax.set_ylim(7000, 10500)
-ax.set_xticks(choices)
-ax.set_xlabel("Beam Energy (GeV)")
-ax.set_ylabel("Cumulative Events")
-ax.set_title("Cumulative Cluster Count by Energy (Pions)")
-ax.legend(fontsize=7)
-ax.grid(True)
+# Formatting the plot style
+plt.xlabel("Energy [GeV]", fontsize=12)
+plt.ylabel("Efficiency", fontsize=12)
+plt.title(" One Cluster Efficiency vs Energy ")
+
+# Force the x-axis to only show your discrete energy points
+plt.xticks(energies)
+#plt.grid(True, linestyle='--', alpha=0.6)
+plt.ylim(-0.05, 1.05) # Efficiency ranges from 0 to 1
+
+# Add a clean legend
+plt.legend(loc="best", frameon=False)
+#plt.legend(loc="best", frameon=True)
+
+# Save the plot using the Agg backend
 plt.tight_layout()
-plt.savefig("2stacked_clusters_pions.pdf")
+plt.savefig("cluster_efficiency_vs_energy.png", dpi=300)
 plt.close()
 
-print("\nDone!")
+print("Plot successfully saved as cluster_efficiency_vs_energy.png")
+'''
 
+
+for i in range(5000):
+                if len(cluster_energy[i]) == 1:
+                    count = count+1
+            cluster_energy = pandora_clusters["PandoraClusters.energy"].array()
+            cluster_counts.append()
+            pid_{pid}_{a}.
+
+
+for pid in particles:
+    for a in angles: 
+        cluster_counts = {num: np.zeros(max_clusters, dtype=int) for num in energies}
+        for num in energies:
+            print(f"\n=== Energy {num} GeV ===")
+            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_bib2/job_0/reco_output_p{num}_{pid}_nobib0.edm4hep.root")
+            #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib2/reco_pdg_211_pt_{num}_theta_15-15_nobib.root")
+            events = file["events"]
+            pandora_clusters = events["PandoraClusters"]
+            cluster_energy = pandora_clusters["PandoraClusters.energy"].array()
+
+            for i in range(5000):
+                n = len(cluster_energy[i])
+                if 1 <= n <= max_clusters:
+                    cluster_counts[num][n - 1] += 1
+
+        # Plot — energy on x axis, cumulative events on y axis
+        fig, ax = plt.subplots(figsize=(9, 6))
+
+        markers = ['o', 's', '^']
+        colors = ['blue', 'orange', 'red']
+
+        for cluster_n in range(max_clusters):
+            # For each cluster count (1,2,3...) get cumulative sum up to that point for each energy
+            y_vals = [np.sum(cluster_counts[num][:cluster_n + 1]) for num in energies]
+            ax.plot(
+                choices,
+                y_vals,
+                marker='o',
+                label=f"Up to {cluster_n + 1} cluster(s)"
+            )
+
+        #ax.set_ylim(7000, 10500)
+        ax.set_xticks(choices)
+        ax.set_xlabel("Beam Energy (GeV)")
+        ax.set_ylabel("Cumulative Events")
+        ax.set_title(f"Cumulative Cluster Count by Energy for {pid} at {a} Degrees")
+        ax.legend(fontsize=7)
+        ax.grid(True)
+        plt.tight_layout()
+        plt.savefig(f"stacked_clusters_{pid}_{a}.pdf")
+        plt.close()
+
+        print("\nDone!")
+'''
 '''
 import numpy as np
 import math
@@ -221,4 +292,9 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig("newsummary_oneclus_pion.pdf")
 plt.close()
+'''
+
+
+'''
+Muss ich auch fragen, gibt es eine Zeit dass ist besser zu bewegenen, also wie kann ich eine Schluessel bekommen...?"
 '''

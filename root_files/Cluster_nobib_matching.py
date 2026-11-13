@@ -45,8 +45,8 @@ particle = [211, 11]
 for pid in particle: 
     for e in energies:
         for a in angle:
-            #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_bib2/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
-            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_basesoft/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
+            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_bib2/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
+            #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_TOVA_base/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
             bound = bounds_software_off[pid][a][e]
             matched_clusters = []
             events = file["events"]

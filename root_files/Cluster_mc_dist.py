@@ -21,20 +21,26 @@ system2name = {
     3403901740: "Skip",
 }
 real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec","EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
-energies = [50]
+#energies = [2, 5, 10, 30, 50]
+#angles = [15, 85]
+#particles = [11, 211]
+energies = [2, 5, 10, 30, 50]
 angles = [15, 85]
 particles = [11, 211]
 mc_median= []
 mc_low = []
 mc_high = []
+
+
+
 for pid in particles:
     for a in angles:
         for e in energies:
             distances = []
             count = 0
             passes = 0
-            #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_bib2/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
-            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_basesoft/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
+            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_trial10/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
+            #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_basesoft/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
             events = file["events"]
             pandora_clusters = events["PandoraClusters"]
             #I need the theta phi of mc and of clusters 
@@ -85,7 +91,13 @@ for pid in particles:
             median = np.median(distance_array)
             bins = 30
             q95 = np.percentile(distance_array, [95])
+            q90 = np.percentile(distance_array, [90])
+            q85 = np.percentile(distance_array, [85])
+            q80 = np.percentile(distance_array, [80])
             print(f"For energy {e}, particle {pid}, angle {a}, 95% is {q95}")
+            print(f"For energy {e}, particle {pid}, angle {a}, 90% is {q90}")
+            print(f"For energy {e}, particle {pid}, angle {a}, 85% is {q85}")
+            print(f"For energy {e}, particle {pid}, angle {a}, 80% is {q80}")
             plt.hist(distance_array, bins=bins, edgecolor = 'black')
             plt.xlabel(f"One Cluster Distance")
             plt.ylabel("Count")
@@ -96,8 +108,8 @@ for pid in particles:
                 linewidth=2,
                 label=f"Median = {median:.2f}"
             )
-            plt.legend()
-            plt.title(f"One Cluster Distance from MC particle for {e}, {pid}, {a} No Software")
+            plt.legend() 
+            plt.title(f"One Cluster Distance from MC particle for {e}, {pid}, {a}  Software Calibrated")
             plt.tight_layout()
-            plt.savefig(f"distance_from_MC_{e}_{pid}_{a}_nosoftware.pdf")
+            plt.savefig(f"distance_from_MC_{e}_{pid}_{a}_nosoftware_calibrated.pdf")
             plt.close()

@@ -145,6 +145,7 @@ for num in energies:
             print(f"    Event {fraction_events[idx]}, fraction={fraction[idx]:.3f}")
         fraction = np.array(fraction)
     '''
+    
     bins=30
     plt.hist(fraction, bins=bins, range = (0,2), edgecolor = 'black')
     plt.xlabel(f"Cluster/MC Energy Fraction with Bib")
@@ -175,10 +176,3 @@ plt.legend()
 plt.tight_layout()
 plt.savefig("summary_bib_neutrons_res.pdf")
 plt.close()
-
-
-
-
-
-#uscms-pursue-commitee@fnal.gov.
-

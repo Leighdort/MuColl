@@ -9,29 +9,19 @@ import uproot
 angle = [15, 85]
 particle = [11, 211]
 for pid in particle:
-    #Lets do 15 and 85
-    #Then for soft and nosoft bib 
-    median_soft_15 = {"bib": [], "nobib": []}
-    median_nosoft_15 = {"bib": [], "nobib": []}
-    low_soft_15 = {"bib": [], "nobib": []}
-    low_nosoft_15 = {"bib": [], "nobib": []}
-    high_soft_15 = {"bib": [], "nobib": []}
-    high_nosoft_15 = {"bib": [], "nobib": []}
-    res_soft_15 = {"bib": [], "nobib": []}
-    res_nosoft_15 = {"bib": [], "nobib": []}
-    median_soft_85 = {"bib": [], "nobib": []}
-    median_nosoft_85 = {"bib": [], "nobib": []}
-    low_soft_85 = {"bib": [], "nobib": []}
-    low_nosoft_85 = {"bib": [], "nobib": []}
-    high_soft_85 = {"bib": [], "nobib": []}
-    high_nosoft_85 = {"bib": [], "nobib": []}
-    res_soft_85 = {"bib": [], "nobib": []}
-    res_nosoft_85 = {"bib": [], "nobib": []}
+    results = {
+    "4cal_bib": {},
+    "bib": {},
+    "nobib": {},
+    "hit4cal_bib": {},
+    ""
+
+    }
     for a in angle: 
         #Open up the file
         #Find resolution
         #Graph gaussian
-        file = uproot.open(f"/users/rldohert/work/mucoll/mucoll-slurm/files/matched_clusters_pid{pid}_E50_theta{a}_software_off_nobib.root")
+        
         tree = file["MatchedClusters"]
         arrays = tree.arrays(library="np")
         matched_energy = arrays["matched_energy"]
@@ -100,7 +90,7 @@ for pid in particle:
 
         #Open up the file
         #Find resolution
-        #Graph gaussian
+        #Graph gaussian4
         file = uproot.open(f"/users/rldohert/work/mucoll/mucoll-slurm/files/matched_clusters_pid{pid}_E50_theta{a}_software_on_nobib.root")
         tree = file["MatchedClusters"]
         arrays = tree.arrays(library="np")

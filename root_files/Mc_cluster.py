@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import uproot
-
+#/users/rldohert/data/mucoll/rldohert/pdg_211_pt_10_theta_15-15_TOVA_base/reco_pdg_211_pt_10_theta_15-15_nobib.root
 system2name = {
     679272617: "EcalBarrelCollectionRec",
     1573202488: "HcalBarrelCollectionRec",
@@ -23,8 +23,8 @@ print("Here")
 real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec","EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
 #energies = [2, 10, 30, 50]
 #choices = [2, 10, 30, 50]
-energies = [2, 5, 10, 15, 30, 50]
-choices = [2, 5, 10, 15, 30, 50]
+energies = [10, 30, 50]
+choices = [10, 30, 50]
 angular_med = []
 angular_low = []
 angular_high = []
@@ -32,9 +32,10 @@ r_med = []
 r_low = []
 r_high = []
 one_clusters = []
+#reco_output_p10_211_nobib0.edm4hep.root
 for num in energies:
     print(f"\n=== Energy {num} GeV ===")
-    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_143-143_bib2/reco_pdg_11_pt_{num}_theta_143-143_nobib.root")
+    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_85-85_TOVA_base/job_0/reco_output_p{num}_211_nobib0.edm4hep.root")
     #file_bib = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_15-15_bib/reco_pdg_211_pt_{num}_theta_15-15_bib.root")
     events = file["events"]
     pandora_clusters = events["PandoraClusters"]
@@ -99,6 +100,7 @@ for num in energies:
     angular_high.append(q84 - median)
     angular_med.append(median)
     #bins = 30
+    '''
     bins = np.linspace(0, 0.1, 31)
     plt.hist(angular_dist, bins=bins, edgecolor = 'black')
     plt.xlim(0, 0.1) 
@@ -112,14 +114,15 @@ for num in energies:
         label=f"Median = {median:.2f}"
     )
     plt.legend()
-    plt.title(f"Angular Distance (143) from ClusCenter (1 Clus) to MomentumEnd {num} GeV Electrons")
+    plt.title(f"Angular Distance () from ClusCenter (1 Clus) to MomentumEnd {num} GeV Electrons")
     plt.tight_layout()
 
     plt.savefig(f"6ang__143_dist_momend_elec{num}GeV.pdf")
     plt.close()
-    p98 = np.percentile(angular_dist, 98)
-    print(f"For {num} GeV, 98th percentile is {p98}")
-    print("Electron 143 degrees")
+    '''
+    p95 = np.percentile(angular_dist, 95)
+    print(f"For {num} GeV, 98th percentile is {p95}")
+    print("Pion 85 degrees")
 
     '''
     q16, q84 = np.percentile(regular_dist, [16, 84])
@@ -144,6 +147,7 @@ for num in energies:
     plt.savefig(f"sph_dist_momend_neut{num}GeV.pdf")
     plt.close()
     '''
+'''
 plt.errorbar(choices, angular_med, yerr=[angular_low, angular_high], fmt='s', alpha= 0.6, capsize=4, label="Electron particle Gun")
 plt.xlabel("Beam Energy")
 plt.ylabel("Median Angular Distance")
@@ -163,7 +167,7 @@ plt.legend()
 plt.tight_layout()
 plt.savefig("one_pion_cluster.pdf")
 plt.close()
-
+'''
 '''
 plt.errorbar(choices, r_med, yerr=[r_low, r_high], fmt='s', alpha= 0.6, capsize=4, label="Neutron particle Gun")
 plt.xlabel("Beam Energy")

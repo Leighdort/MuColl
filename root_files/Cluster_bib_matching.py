@@ -9,6 +9,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import uproot
 
+#return_barycenter_centre_of_gravity(i, j)
+#return eta_bary, phi_bary, [cog_x, cog_y, cog_z], xs, ys, zs, ws, id_cell, locations
 system2name = {
     679272617: "EcalBarrelCollectionRec",
     1573202488: "HcalBarrelCollectionRec",
@@ -17,45 +19,56 @@ system2name = {
     3403901740: "Skip",
 }
 real_systems = ["EcalBarrelCollectionRec", "HcalBarrelCollectionRec","EcalEndcapCollectionRec", "HcalEndcapCollectionRec"]
-energies = [50]
+energies = [10]
 bounds_software_on = {
     11: {  # e
-        15: {50: 0.00562556},
-        85: {50: 0.03639618},
+        15: {2: 0.0069466, 5: 0.00613511, 10: 0.00608543, 30:0.00560835, 50: 0.00562556},
+        85: {2: 0.22770625, 5: 0.05707985, 10: 0.0513917, 30:0.03788092, 50: 0.03639618},
+        #we will be using 90% margin for 85 11 because 95% was 1.0027 before which is very very large
+
     },
     211: {   # p
-        15: {50: 0.00410849},
-        85: {50: 0.01243161},
+        15: {2: 0.02450252, 5:0.01526474, 10:0.01042188, 30:0.00555203, 50: 0.00410849},
+        #85: {2:0.32308473, 5:0.10632856, 10:0.03867084, 30:0.01799701, 50: 0.01243161}, #This is normal
+        85: {10:0.03957635, 30: 0.01727766, 50: 0.01234509} #Tova Calibration
     }
 }
+'''
 bounds_software_off = {
     211: {
-        15: {50:0.00404678},
-        85: {50:0.01238617},
+        15: {2:, 5:, 10:, 30:, 50:0.00404678},
+        85: {2:, 5:, 10:, 30:, 50:0.01238617},
     },
     11: {
-        15: {50:0.00534034},
-        85: {50:0.03894222},
+        15: {2:, 5:, 10:, 30:, 50:0.00534034},
+        85: {2:, 5:, 10:, 30:, 50:0.03894222},
     }
 }
+'''
 file = uproot.open
 angle = [85]
-particle = [11]
+particle = [211]
+energies = [10, 30, 50]
 for pid in particle: 
     for num in energies:
         for a in angle:
+            '''
             files = [
-                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_calib10/reco_chunk_1.root",
-                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_calib10/reco_chunk_2.root",
-                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_calib10/reco_chunk_3.root",
-                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_calib10/reco_chunk_4.root",
+                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_bib2_base/reco_chunk_1.root",
+                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_bib2_base/reco_chunk_2.root",
+                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_bib2_base/reco_chunk_3.root",
+                f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_bib2_base/reco_chunk_4.root",
             ]
-            bound = bounds_software_off[pid][a][num]
+            '''
+            bound = bounds_software_on[pid][a][num]
             matched_clusters = []
-            for f in files: 
+            if True:
+            #for f in files: 
                 print(f"\n=== Energy {num} GeV ===")
-                with uproot.open(f) as file:
-                    #file_bib = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_2112_pt_{num}_theta_15-15_bib2/reco_pdg_2112_pt_{num}_theta_15-15_bib.root")
+                if True: 
+                #with uproot.open(f) as file:
+                    #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{num}_theta_{a}-{a}_trial10/job_0/reco_output_p{num}_{pid}_nobib0.edm4hep.root")
+                    file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_{num}_theta_85-85_TOVA_base/job_0/reco_output_p{num}_211_nobib0.edm4hep.root")
                     events = file["events"]
                     pandora_clusters = events["PandoraClusters"]
                     #I need the theta phi of mc and of clusters 
@@ -90,7 +103,7 @@ for pid in particle:
                         hcal_barrel = 0
                         ecal_endcap = 0
                         hcal_endcap = 0
-                        if (i % 100 == 0):
+                        if (i % 1000 == 0):
                             print(i)
                         #Let's just right now filter for events with only 1 cluster
                         #if len(cluster_energy[i]) == 1:
@@ -119,6 +132,7 @@ for pid in particle:
                                 c_r = np.sqrt(cx**2 + cy**2 + cz**2)
                                 c_theta = np.arccos(cz / c_r)
                                 c_phi = np.arctan2(cy, cx)
+                                #cosang = (np.sin(mc_theta) * np.sin(A_theta) * np.cos(mc_phi - A_phi) + np.cos(mc_theta)*np.cos(A_theta))
                                 cosang = (np.sin(mc_theta)*np.sin(c_theta)*np.cos(mc_phi - c_phi)+ np.cos(mc_theta)*np.cos(c_theta)) #Distance from mc particle
                                 #Now we need to clip it
                                 cosang = np.clip(cosang, -1.0, 1.0)
@@ -130,6 +144,7 @@ for pid in particle:
                                 continue
                             clus_array = np.array(clus_array)
                             max_energy = np.max(clus_array)
+
                             mc_momentum = np.sqrt(momx**2 + momy**2 + momz**2)
                             mc_energy = np.sqrt(mcmass*mcmass + mc_momentum*mc_momentum)
                             matched_local = np.argmax(clus_array)
@@ -180,7 +195,7 @@ for pid in particle:
             if len(matched_clusters) == 0:
                 print("No matches found — skipping file write")
                 continue
-            outfile = f"matched_clusters_pid{pid}_E{num}_theta{a}_calib10.root"
+            outfile = f"matched_clusters_pid{pid}_E{num}_theta{a}_TOVA_base.root"
             output_data = {
                 "event": np.array([x["event"] for x in matched_clusters], dtype=np.int32),
                 "pid": np.array([x["pid"] for x in matched_clusters], dtype=np.int32),
@@ -198,3 +213,33 @@ for pid in particle:
                 fout["MatchedClusters"] = output_data
             
             print(f"Wrote {len(matched_clusters)} matched clusters to {outfile}")
+
+
+'''
+matched_clusters_pid11_E10_theta15_calibrated_base.root 
+matched_clusters_pid11_E10_theta85_calibrated_base.root
+matched_clusters_pid11_E10_theta15_uncalibrated_base.root 
+matched_clusters_pid11_E10_theta85_uncalibrated_base.root
+matched_clusters_pid211_E10_theta15_calibrated_base.root 
+matched_clusters_pid211_E10_theta15_uncalibrated_base.root 
+matched_clusters_pid211_E10_theta85_calibrated_base.root
+matched_clusters_pid211_E10_theta85_uncalibrated_base.root 
+
+matched_clusters_pid11_E30_theta15_calibrated_base.root 
+matched_clusters_pid11_E30_theta85_calibrated_base.root
+matched_clusters_pid11_E30_theta15_uncalibrated_base.root 
+matched_clusters_pid11_E30_theta85_uncalibrated_base.root
+matched_clusters_pid211_E30_theta15_calibrated_base.root 
+matched_clusters_pid211_E30_theta15_uncalibrated_base.root 
+matched_clusters_pid211_E30_theta85_calibrated_base.root
+matched_clusters_pid211_E30_theta85_uncalibrated_base.root 
+
+#Now 50 too:
+
+bib uncalibrated:
+#"matched_clusters_pid{pid}_E{num}_theta{a}_software_on.root"
+#bib4cal:
+matched_clusters_pid{pid}_E{num}_theta{a}_calib10.root
+#Then do 4cal/hitcal
+
+'''

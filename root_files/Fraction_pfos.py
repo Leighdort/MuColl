@@ -17,6 +17,7 @@ pion_low = []
 pion_high = []
 
 for num in choices:
+    #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_211_pt_85-85_fedecheck/job_0/reco_output_p__nobib_oldalg.edm4hep.root")
     file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_11_pt_{num}_theta_15-15/reco_pdg_11_pt_{num}_theta_15-15.root")
     events = file["events"]
     clusters = events["PandoraClusters"]

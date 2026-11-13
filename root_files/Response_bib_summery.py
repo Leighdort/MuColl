@@ -67,6 +67,12 @@ for pid in particle:
 
         
         file = uproot.open(f"matched_clusters_pid{pid}_E50_theta{a}_software_on.root")
+
+        #file = uproot.open(f"matched_clusters_pid{pid}_E50_theta{a}_software_on.root") this is 15, 85 pid 11, 211
+        #file = 
+
+
+
         tree = file["MatchedClusters"]
         arrays = tree.arrays(library="np")
         matched_energy = arrays["matched_energy"]

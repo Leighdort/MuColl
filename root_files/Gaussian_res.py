@@ -17,7 +17,27 @@ angle2region = {
     85: "Barrel",
     143: "Transition",
 }
+region_colors = {
+    "Barrel": "tab:orange",
+    "Endcap": "tab:blue",
+}
 
+calib_styles = {
+    "Baseline": "-",
+    "4Cal": "--",
+    "4CalHitCal": ":",
+}
+
+calib_markers = {
+    "Baseline": "o",   # circle
+    "4Cal": "s",      # square
+    "4CalHitCal": "^" # triangle
+}
+
+particle_labels = {
+    11: "Electron",
+    211: "Pion"
+}
 import numpy as np
 import math
 import matplotlib
@@ -47,18 +67,26 @@ bounds = {
         143:{2: 0.59, 5: 0.05, 10: 0.04, 15: 0.04, 30: 0.04, 50: 0.04},
     }
 }
-energy = [2, 5, 10, 30, 50]
+#energy = [2, 5, 10, 30, 50, 75]
+energy = [10,30,50]
+
+#energy = [50]
+#angles = [15, 85]
+angles = [85]
+particle = [211]
 #energy = [30, 50]
 # e 2, 10, 30, 50 
 #particle = [2112, 2212, 321]
-particle = [2112]
+#particle = [11]
 #angles = [15, 85, 140]
-angles = [15, 85]
+#angles = [15, 85]
+#angles = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 yes = True
 results = {}
 results_base = {}
 results_4cal = {}
 #This is exluding bounds!
+
 for pid in particle:
     for e in energy: 
         mc_median= []
@@ -73,8 +101,9 @@ for pid in particle:
             #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/a_pdg_{pid}_pt_50_theta_{a}-{a}_trial10.2/job_0/reco_output_p50_{pid}_nobib0.edm4hep.root")
             #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/a_pdg_{pid}_pt_50_theta_{a}-{a}_trial5/reco_pdg_pdg_pt_pt_theta_theta_nobib.root")
             #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_bib2/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
-            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_trial10/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
-            #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_basesoft/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
+            #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_trial10/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
+            file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_basesoft/job_0/reco_output_p{e}_{pid}_nobib0.edm4hep.root")
+            #file = uproot.open(f"/users/rldohert/data/mucoll/rldohert/pdg_{pid}_pt_{e}_theta_{a}-{a}_TOVA_base/job_0/reco_output_p10_211_nobib0.edm4hep.root")
             events = file["events"]
             pandora_clusters = events["PandoraClusters"]
             pandora_sub_energy = events["_PandoraClusters_subdetectorEnergies"].array()
@@ -230,12 +259,73 @@ for pid in particle:
                     "high": []
                 }
             #THis is the calibration for the 4 Cal number thing
+            bins = np.linspace(0, 2, 60)
             q16, q84 = np.percentile(fraction, [16, 84])
             median_full = np.median(fraction)
             results_4cal[pid][a]["energy"].append(e)
             results_4cal[pid][a]["median"].append(median_full)
             results_4cal[pid][a]["low"].append(median_full - q16)
             results_4cal[pid][a]["high"].append(q84 - median_full)
+            #Ok i want a gaussian of fraction here, with a boudns 0 to 2, labeled with the 'energy, angle, particle 4 cal, median", separated i
+            bins = np.linspace(0, 2, 60)
+            below_50 = []
+            above_50 = []
+            ecal_low = []
+            ecal_high = []
+
+            for i in range(len(fraction)):
+                if ecal_ratio[i] < 0.5:
+                    below_50.append(fraction[i])
+                    ecal_low.append(ecal_ratio[i])
+                if ecal_ratio[i] >= 0.5:
+                    above_50.append(fraction[i])
+                    ecal_high.append(ecal_ratio[i])
+            median_below = np.median(below_50)
+            median_above = np.median(above_50)
+            bins = np.linspace(0, 2, 60)
+            below_50 = np.array(below_50)
+            above_50 = np.array(above_50)
+            ecal_low = np.array(ecal_low)
+            ecal_high = np.array(ecal_high)
+            plt.figure(figsize=(7,5))
+            median = np.median(fraction)
+            plt.hist(below_50, bins=bins, alpha=0.5,
+            label='Ecal Hit Fraction < 0.5', edgecolor='black')
+
+            plt.hist(above_50, bins=bins, alpha=0.5,
+                    label='Ecal Hit Fraction ≥ 0.5',
+                    edgecolor='black')
+
+            plt.axvline(median_below, color='royalblue', linestyle='--', linewidth=2,
+                        label=f'Below 0.5 median = {median_below:.3f}')
+
+            plt.axvline(median_above, color = 'orange', linestyle='--', linewidth=2,
+                        label=f'Above 0.5 median = {median_above:.3f}')
+
+            plt.axvline(median, color='red', linestyle='--', linewidth=2,
+                        label=f"Median = {median:.6f}")
+            '''
+            plt.xlabel("Response")
+            plt.ylabel("Count")
+            plt.xlim(0, 2)
+            plt.title(f"4Cal Gaussian ({pid}, {a}°, {e} GeV)")
+            plt.legend()
+            plt.tight_layout()
+            plt.savefig(f"gaussian_4cal_{a}_{pid}_{e}.pdf")
+            plt.close()
+            '''
+            plt.xlabel("Response")
+            plt.ylabel("Count")
+            plt.xlim(0, 2)
+            #plt.title(f"4Cal Gaussian (Pions, Barrel, {e} GeV)")
+            plt.tight_layout()
+            plt.legend(frameon=False)
+            plt.savefig(f"gaussian_4cal_{a}_{pid}_{e}.pdf")
+            plt.close()
+
+
+
+
             for i in range(len(fraction)):
                 baseline = fraction[i]
                 correction_1 = ecal_e_ratio[i] * .09
@@ -244,16 +334,64 @@ for pid in particle:
                 correction_4 =  hcal_b_ratio[i] * .19
                 new_fraction = baseline - correction_1 + correction_2 - correction_3 + correction_4
                 fraction[i] = new_fraction
-            
+            #I want another gaussian of fration here
+
             q16, q84 = np.percentile(fraction, [16, 84])
             median_full = np.median(fraction)
             results[pid][a]["energy"].append(e)
             results[pid][a]["median"].append(median_full)
             results[pid][a]["low"].append(median_full - q16)
             results[pid][a]["high"].append(q84 - median_full)
+
+            bins = np.linspace(0, 2, 60)
+            plt.figure(figsize=(7,5))
+            median = np.median(fraction)
+            below_50 = []
+            above_50 = []
+            ecal_low = []
+            ecal_high = []
+
+            for i in range(len(fraction)):
+                if ecal_ratio[i] < 0.5:
+                    below_50.append(fraction[i])
+                    ecal_low.append(ecal_ratio[i])
+                if ecal_ratio[i] >= 0.5:
+                    above_50.append(fraction[i])
+                    ecal_high.append(ecal_ratio[i])
+            median_below = np.median(below_50)
+            median_above = np.median(above_50)
+            bins = np.linspace(0, 2, 60)
+            below_50 = np.array(below_50)
+            above_50 = np.array(above_50)
+            ecal_low = np.array(ecal_low)
+            ecal_high = np.array(ecal_high)
+            plt.hist(below_50, bins=bins, alpha=0.5,
+            label='Ecal Hit Fraction < 0.5', edgecolor='black')
+
+            plt.hist(above_50, bins=bins, alpha=0.5,
+                    label='Ecal Hit Fraction ≥ 0.5',
+                    edgecolor='black')
+
+            plt.axvline(median_below, color = 'royalblue',  linestyle='--', linewidth=2,
+                        label=f'Below 0.5 median = {median_below:.3f}')
+
+            plt.axvline(median_above, color = 'orange', linestyle='--', linewidth=2,
+                        label=f'Above 0.5 median = {median_above:.3f}')
+
+            plt.axvline(median, color='red', linestyle='--', linewidth=2,
+                        label=f"Median = {median:.6f}")
+
+            plt.xlabel("Response")
+            plt.ylabel("Count")
+            plt.xlim(0, 2)
+            #plt.title(f"4Cal/Hitcal Gaussian (Pion, Barrel, {e} GeV)")
+            plt.legend(frameon=False)
+            plt.tight_layout()
+            plt.savefig(f"gaussian_4calhitcal_{a}_{pid}_{e}.pdf")
+            plt.close()
             #Attempt one at calibrations!
 
-            '''
+            ''' 
             for i in range(len(fraction)):
                 if ecal_ratio[i] > 0.5:
                     if ecal_e_ratio[i] > ecal_b_ratio[i]:
@@ -435,7 +573,7 @@ for pid in particle:
             #Can we plot these on the same graph with different opacities adn colors ontop of eachother
             #One labeled below 50
             #One labeled above 50
-            
+            '''
             bins = np.linspace(0, 2, 60)
             plt.figure(figsize=(7,5))
             median = np.median(fraction)
@@ -488,7 +626,7 @@ for pid in particle:
             plt.tight_layout()
             plt.savefig(f"combined_gaussian_{a}_{pid}_{e}_base_nosoftware.pdf")
             plt.close()
-            
+            '''
             #Let's just plot fraction now w/ energy
             
             '''
@@ -548,7 +686,7 @@ for pid in particle:
             '''
 
 
-
+        '''
             #Now just a normal graph: 
             q16, q84 = np.percentile(fraction, [16, 84])
             median = np.median(fraction)
@@ -571,10 +709,12 @@ for pid in particle:
             plt.tight_layout()
             plt.savefig(f"full_gaussian_{a}_{pid}_{e}_base_nosoftware.pdf")
             plt.close()
+        '''
         #This will be a gaussian 
         #1 line for each angle
         #a gaussian for each pid 
         #Vary through energy
+
 #Now we need the other thing too here
 #This is Graphing the Full Thing
 for pid in particle:
@@ -743,11 +883,58 @@ for pid in particle:
             results_base[pid][a]["median"].append(median_full)
             results_base[pid][a]["low"].append(median_full - q16)
             results_base[pid][a]["high"].append(q84 - median_full)
+            bins = np.linspace(0, 2, 60)
+            plt.figure(figsize=(7,5))
+            median = np.median(fraction)
+            below_50 = []
+            above_50 = []
+            ecal_low = []
+            ecal_high = []
+
+            for i in range(len(fraction)):
+                if ecal_ratio[i] < 0.5:
+                    below_50.append(fraction[i])
+                    ecal_low.append(ecal_ratio[i])
+                if ecal_ratio[i] >= 0.5:
+                    above_50.append(fraction[i])
+                    ecal_high.append(ecal_ratio[i])
+            median_below = np.median(below_50)
+            median_above = np.median(above_50)
+            bins = np.linspace(0, 2, 60)
+            below_50 = np.array(below_50)
+            above_50 = np.array(above_50)
+            ecal_low = np.array(ecal_low)
+            ecal_high = np.array(ecal_high)
+
+            plt.hist(below_50, bins=bins, alpha=0.5,
+            label='Ecal Hit Fraction < 0.5', edgecolor='black')
+
+            plt.hist(above_50, bins=bins, alpha=0.5,
+                    label='Ecal Hit Fraction ≥ 0.5',
+                    edgecolor='black')
+
+            plt.axvline(median_below, color = 'royalblue', linestyle='--', linewidth=2,
+                        label=f'Below 0.5 median = {median_below:.3f}')
+
+            plt.axvline(median_above, color='orange', linestyle='--', linewidth=2,
+                        label=f'Above 0.5 median = {median_above:.3f}')
+
+            plt.axvline(median, color='red', linestyle='--', linewidth=2,
+                        label=f"Median = {median:.6f}")
+
+            plt.xlabel("Response")
+            plt.ylabel("Count")
+            plt.xlim(0, 2)
+            #plt.title(f"Baseline Gaussian (Pion, Barrel, {e} GeV)")
+            plt.legend(frameon=False)
+            plt.tight_layout()
+            plt.savefig(f"gaussian_baseline_{a}_{pid}_{e}.pdf")
+            plt.close()
+
 
 
 for pid in particle:
     plt.figure(figsize=(7,5))
-
     for a in angles:
         E = results[pid][a]["energy"]
         med = results[pid][a]["median"]
@@ -761,20 +948,17 @@ for pid in particle:
         med_4cal = results_4cal[pid][a]["median"]
         low_4cal = results_4cal[pid][a]["low"]
         high_4cal = results_4cal[pid][a]["high"]
-
-        plt.errorbar(
-            E,
-            med,
-            yerr=[low, high],
-            marker='o',
-            capsize=4,
-            label=f"{angle2region[a]} 4Cal/HitCal"
-        )
+        region = angle2region[a]
+        color = region_colors[region]
+        plt.axhline(y=1, color='black', linestyle='--', linewidth=1)
+        
         plt.errorbar(
             E_base,
             med_base,
             yerr=[low_base, high_base],
-            marker='o',
+            color = color,
+            marker = calib_markers["Baseline"],
+            linestyle=calib_styles["Baseline"],
             capsize=4,
             label=f"{angle2region[a]} Baseline"
         )
@@ -782,17 +966,33 @@ for pid in particle:
             E_4cal,
             med_4cal,
             yerr=[low_4cal, high_4cal],
-            marker='o',
+            marker = calib_markers["4Cal"],
+            color=color,
+            linestyle = calib_styles["4Cal"],
             capsize=4,
-            label=f"{angle2region[a]} 4Cal"
+            label=f"{angle2region[a]} Regional Scale"
         )
+        
+        plt.errorbar(
+            E,
+            med,
+            yerr=[low, high],
+            marker=calib_markers["4CalHitCal"],
+            color = color,
+            linestyle = calib_styles["4CalHitCal"],
+            capsize=4,
+            label=f"{angle2region[a]} Longitudinal Profile"
+        )
+        
+        
 
     plt.xlabel("Energy [GeV]")
     plt.ylabel("Median Response")
-    plt.title(f"Median Response for PID {pid} ")
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(f"response_vs_energy_pid_{pid}_three.pdf")
+    #plt.title(f"Median Response for {particle_labels[pid]} ")
+    plt.ylim(0,1.2)
+    plt.legend(frameon=False)
+    
+    plt.savefig(f"response_vs_energy_pid_{pid}_energys.pdf")
     plt.close()
 
 for pid in particle:
@@ -817,29 +1017,42 @@ for pid in particle:
         high_4cal = np.array(results_4cal[pid][a]["high"])
         sigma_4cal = (high_4cal + low_4cal)/2
         resolution_4cal = sigma_4cal / med_4cal
-        plt.plot(
-            E,
-            resolution,
-            marker='o',
-            label=f"{angle2region[a]} 4Cal/HitCal"
-        )
+        region = angle2region[a]
+        color = region_colors[region]
+        #label=f"{angle2region[a]} 4Cal/HitCal"
+        
         plt.plot(
             E_base,
             resolution_base,
-            marker='o',
+            marker=calib_markers["Baseline"],
+            color=color,
+            linestyle = calib_styles["Baseline"],
             label=f"{angle2region[a]} Baseline"
         )
         plt.plot(
             E_4cal,
             resolution_4cal,
-            marker='o',
-            label=f"{angle2region[a]} 4Cal"
+            marker=calib_markers["4Cal"],
+            color=color,
+            linestyle = calib_styles["4Cal"],
+            label=f"{angle2region[a]} Regional Scale"
         )
+        
+        plt.plot(
+            E, 
+            resolution,
+            marker=calib_markers["4CalHitCal"],
+            color=color,
+            linestyle = calib_styles["4CalHitCal"],
+            label=f"{angle2region[a]} Longitudinal Profile"
+        )
+        
 
     plt.xlabel("Energy [GeV]")
     plt.ylabel(r"Resolution $\sigma/E$")
-    plt.title(f"Resolution for PID {pid}")
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(f"resolution_vs_energy_pid_{pid}_three.pdf")
+    #plt.title(f"Resolution for {particle_labels[pid]}")
+    plt.ylim(0,1.0)
+    plt.legend(frameon=False)
+   
+    plt.savefig(f"resolution_vs_energy_pid_{pid}_energys.pdf")
     plt.close()
