@@ -54,7 +54,6 @@ particles = {
         "label": "Pion",
         "color": "firebrick",
         "files": [
-            f"{BASE}/pdg_211_pt_10_200_theta_45-135_calib/reco_pdg_211_pt_10_200_theta_45-135_nobib_1.root",
             f"{BASE}/pdg_211_pt_10_200_theta_45-135_calib/reco_pdg_211_pt_10_200_theta_45-135_nobib.root",
         ],
     },
